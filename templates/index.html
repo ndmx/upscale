@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <h1 class="mt-4">Welcome to Upscale AI Bootcamp</h1>
+    <p>Democratizing AI-adapted skills in cybersecurity, data engineering, and web dev for West Africa.</p>
+    <h2>Available Courses</h2>
+    <ul class="list-group">
+        {% for course in courses %}
+            <li class="list-group-item">
+                <strong>{{ course.title }}</strong>: {{ course.description }}
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('register') }}" class="btn btn-primary mt-3">Get Started</a>
+{% endblock %}
+

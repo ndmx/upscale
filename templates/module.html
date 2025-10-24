@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}{{ module.title }}{% endblock %}
+{% block content %}
+    <h1>{{ module.title }}</h1>
+    <p>{{ module.content }}</p>
+    {% if not completed %}
+        <form method="post">
+            <button type="submit" class="btn btn-success">Mark as Completed</button>
+        </form>
+    {% else %}
+        <p class="text-success">Completed!</p>
+    {% endif %}
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+{% endblock %}
+
