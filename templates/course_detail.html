@@ -1,46 +1,179 @@
 {% extends 'base.html' %}
-{% block title %}{{ course.title }}{% endblock %}
-{% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('courses') }}">Courses</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ course.title }}</li>
-        </ol>
-    </nav>
+{% block title %}{{ course.title }} - Upscale AI Bootcamp{% endblock %}
+{% block meta_description %}{{ course.description[:155] }}{% endblock %}
 
-    <h1 class="mt-4">{{ course.title }}</h1>
-    <p class="lead">{{ course.description }}</p>
-    
-    <h2 class="mt-5">Course Modules</h2>
-    <p class="text-muted">Get an overview of what you'll learn. Full interactive access requires enrollment.</p>
-    
-    {% if course.modules %}
-        <ul class="list-group mt-3">
-            {% for module in course.modules %}
-                <li class="list-group-item">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">{{ loop.index }}. {{ module.title }}</h5>
-                        <span class="badge bg-secondary">Preview</span>
+{% block content %}
+    <div class="container mt-4 mb-5">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('courses') }}">Courses</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ course.title }}</li>
+            </ol>
+        </nav>
+
+        <!-- Course Header -->
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <h1 class="mb-3">{{ course.title }}</h1>
+                <p class="lead">{{ course.description }}</p>
+                
+                <div class="mt-4 mb-4">
+                    <span class="course-tag tag-beginner">
+                        <i class="fas fa-user-graduate"></i> Beginner Friendly
+                    </span>
+                    <span class="course-tag tag-duration">
+                        <i class="far fa-clock"></i> 3 Months
+                    </span>
+                    <span class="course-tag tag-intermediate">
+                        <i class="fas fa-book"></i> {{ course.modules|length }} Modules
+                    </span>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h4 class="card-title mb-3">Start Learning Today</h4>
+                        <div class="mb-3">
+                            <p class="text-muted mb-2">Full Payment (Discounted)</p>
+                            <h3 class="text-primary">₦150,000</h3>
+                            <p class="text-muted small">or ₦50,000/month × 3</p>
+                        </div>
+                        <a href="{{ url_for('register') }}" class="cta-btn w-100 mb-2">
+                            <i class="fas fa-user-plus"></i> Enroll Now
+                        </a>
+                        <p class="small text-muted mt-2">
+                            Already registered? <a href="{{ url_for('login') }}">Login here</a>
+                        </p>
                     </div>
-                    <p class="mb-1">{{ module.content[:150] }}...</p>
-                    <small class="text-muted">Enroll for full content and hands-on exercises</small>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p class="alert alert-info">Modules for this course are being updated. Check back soon!</p>
-    {% endif %}
-    
-    <div class="card mt-5 bg-light">
-        <div class="card-body text-center">
-            <h3 class="card-title">Ready to Start Learning?</h3>
-            <p class="card-text">Enroll now to access full course content, interactive modules, progress tracking, and AI-powered recommendations.</p>
-            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Enroll Now to Access Full Content</a>
-            <p class="mt-3">
-                <small class="text-muted">Already have an account? <a href="{{ url_for('login') }}">Login here</a></small>
+                </div>
+            </div>
+        </div>
+
+        <!-- What You'll Learn -->
+        <div class="row mt-5">
+            <div class="col-md-8">
+                <h2 class="mb-4">What You'll Learn</h2>
+                
+                {% if course.modules %}
+                    <div class="accordion" id="modulesAccordion">
+                        {% for module in course.modules %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{{ module.id }}">
+                                    <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" 
+                                            data-bs-toggle="collapse" data-bs-target="#collapse{{ module.id }}" 
+                                            aria-expanded="{% if loop.first %}true{% else %}false{% endif %}" 
+                                            aria-controls="collapse{{ module.id }}">
+                                        <i class="fas fa-book-open me-2"></i> Module {{ loop.index }}: {{ module.title }}
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ module.id }}" 
+                                     class="accordion-collapse collapse {% if loop.first %}show{% endif %}" 
+                                     aria-labelledby="heading{{ module.id }}" 
+                                     data-bs-parent="#modulesAccordion">
+                                    <div class="accordion-body">
+                                        <p>{{ module.content[:200] }}...</p>
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-lock"></i> <strong>Preview Mode</strong> - 
+                                            Enroll to access full interactive content, exercises, and projects.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Modules for this course are being updated. Check back soon!
+                    </div>
+                {% endif %}
+                
+                <!-- Key Benefits -->
+                <div class="mt-5">
+                    <h2 class="mb-4">Key Benefits</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card benefit-card">
+                                <div class="card-body">
+                                    <i class="fas fa-check-circle text-success fa-2x mb-3"></i>
+                                    <h5>Hands-On Projects</h5>
+                                    <p>Build real-world projects relevant to West African contexts.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card benefit-card">
+                                <div class="card-body">
+                                    <i class="fas fa-certificate text-success fa-2x mb-3"></i>
+                                    <h5>Certificate</h5>
+                                    <p>Earn a recognized certificate upon completion.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card benefit-card">
+                                <div class="card-body">
+                                    <i class="fas fa-users text-success fa-2x mb-3"></i>
+                                    <h5>Community Access</h5>
+                                    <p>Join a network of learners across West Africa.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card benefit-card">
+                                <div class="card-body">
+                                    <i class="fas fa-mobile-alt text-success fa-2x mb-3"></i>
+                                    <h5>Mobile Optimized</h5>
+                                    <p>Learn on any device with offline capabilities.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-md-4">
+                <!-- Course Stats -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Course Stats</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-users text-primary"></i> 2,500+ Enrolled</li>
+                            <li class="mb-2"><i class="fas fa-star text-warning"></i> 4.8/5 Rating</li>
+                            <li class="mb-2"><i class="fas fa-language text-primary"></i> English</li>
+                            <li class="mb-2"><i class="fas fa-infinity text-primary"></i> Lifetime Access</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Success Story -->
+                <div class="testimonial">
+                    <h6 class="mb-3">Student Success</h6>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="testimonial-img" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                        <div>
+                            <div class="testimonial-author">Success Story</div>
+                            <div class="testimonial-location">West Africa</div>
+                        </div>
+                    </div>
+                    <p class="testimonial-quote small">"This course gave me the exact skills I needed to land my dream job in tech!"</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final CTA -->
+        <div class="card mt-5 p-5 text-center" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white;">
+            <h3 class="mb-3">Ready to Start Learning?</h3>
+            <p class="lead mb-4">Enroll now to access full course content, interactive modules, progress tracking, and AI-powered recommendations.</p>
+            <a href="{{ url_for('register') }}" class="cta-btn btn-lg">
+                <i class="fas fa-rocket"></i> Enroll Now to Access Full Content
+            </a>
+            <p class="mt-3 mb-0">
+                <small>Already have an account? <a href="{{ url_for('login') }}" style="color: #28a745;">Login here</a></small>
             </p>
         </div>
     </div>
 {% endblock %}
-

@@ -1,0 +1,400 @@
+/* Upscale AI Bootcamp - Custom Styles */
+/* Core Design Rules Implementation */
+
+/* Base Styles - Simplicity Rule */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Bold Engagement Rule - Hero Section */
+.hero {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    padding: 80px 0 60px;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.hero h1 {
+    font-size: 2.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.hero p {
+    font-size: 1.3rem;
+    margin-bottom: 30px;
+    opacity: 0.95;
+}
+
+/* CTA Buttons - Bold Engagement */
+.cta-btn {
+    background: #28a745;
+    color: white;
+    padding: 14px 32px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border: none;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.cta-btn:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    color: white;
+    text-decoration: none;
+}
+
+.cta-btn-secondary {
+    background: #17a2b8;
+}
+
+.cta-btn-secondary:hover {
+    background: #138496;
+}
+
+/* Interactivity Rule - Card Hover Effects */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.card-title {
+    color: #007bff;
+    font-weight: 600;
+}
+
+/* Social Proof Rule - Testimonials */
+.testimonials-section {
+    background: white;
+    padding: 60px 0;
+    margin: 40px 0;
+}
+
+.testimonial {
+    background: white;
+    border-left: 5px solid #007bff;
+    padding: 25px;
+    margin: 20px 0;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.testimonial-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 3px solid #007bff;
+}
+
+.testimonial-quote {
+    font-style: italic;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.testimonial-author {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.testimonial-location {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Benefits Section */
+.benefits-section {
+    padding: 60px 0;
+}
+
+.benefit-card {
+    text-align: center;
+    padding: 30px 20px;
+}
+
+.benefit-icon {
+    font-size: 3rem;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.benefit-card h3 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* Stats Section */
+.stats-section {
+    background: #007bff;
+    color: white;
+    padding: 50px 0;
+    margin: 40px 0;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Course Cards */
+.course-card {
+    margin-bottom: 30px;
+}
+
+.course-tag {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    margin-right: 8px;
+    margin-bottom: 10px;
+}
+
+.tag-beginner {
+    background: #d4edda;
+    color: #155724;
+}
+
+.tag-intermediate {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.tag-duration {
+    background: #e7f3ff;
+    color: #004085;
+}
+
+/* Search Bar */
+.search-bar {
+    margin-bottom: 40px;
+}
+
+.search-bar input {
+    border-radius: 25px;
+    padding: 12px 24px;
+    border: 2px solid #e0e0e0;
+    font-size: 1rem;
+}
+
+.search-bar input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Sticky CTA */
+.sticky-cta {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Accordion Customization */
+.accordion-button {
+    font-weight: 600;
+    color: #007bff;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #e7f3ff;
+    color: #0056b3;
+}
+
+/* Progress Bars */
+.progress {
+    height: 25px;
+    border-radius: 15px;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+    font-weight: bold;
+}
+
+/* Badge Styles */
+.badge-achievement {
+    background: #ffc107;
+    color: #000;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-right: 10px;
+}
+
+/* Community Section */
+.community-stats {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    text-align: center;
+    margin: 30px 0;
+}
+
+.community-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Partners Section */
+.partners-section {
+    padding: 40px 0;
+    background: white;
+}
+
+.partner-logo {
+    max-width: 120px;
+    height: auto;
+    filter: grayscale(100%);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.partner-logo:hover {
+    filter: grayscale(0%);
+    opacity: 1;
+}
+
+/* Footer */
+footer {
+    background: #343a40;
+    color: white;
+    padding: 50px 0 20px;
+    margin-top: 60px;
+}
+
+footer h5 {
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+footer a {
+    color: #adb5bd;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #28a745;
+}
+
+.social-icons a {
+    font-size: 1.5rem;
+    margin-right: 15px;
+}
+
+/* Mobile Responsiveness - Accessibility Rule */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .hero p {
+        font-size: 1.1rem;
+    }
+    
+    .cta-btn {
+        padding: 12px 24px;
+        font-size: 1rem;
+        display: block;
+        margin: 10px 0;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .sticky-cta {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        text-align: center;
+    }
+    
+    .testimonial-img {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* Breadcrumb Styling */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+/* Loading States */
+.loading-skeleton {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Accessibility - High Contrast for Readability */
+.high-contrast {
+    color: #000;
+    background: #fff;
+}
+
+/* Touch-Friendly Buttons */
+button, .btn, a.btn {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #1a1a1a;
+        color: #e0e0e0;
+    }
+    
+    .card {
+        background: #2d2d2d;
+        color: #e0e0e0;
+    }
+}
+
