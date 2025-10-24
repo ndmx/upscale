@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.title }}{% endblock %}
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('courses') }}">Courses</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ course.title }}</li>
+        </ol>
+    </nav>
+
+    <h1 class="mt-4">{{ course.title }}</h1>
+    <p class="lead">{{ course.description }}</p>
+    
+    <h2 class="mt-5">Course Modules</h2>
+    <p class="text-muted">Get an overview of what you'll learn. Full interactive access requires enrollment.</p>
+    
+    {% if course.modules %}
+        <ul class="list-group mt-3">
+            {% for module in course.modules %}
+                <li class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ loop.index }}. {{ module.title }}</h5>
+                        <span class="badge bg-secondary">Preview</span>
+                    </div>
+                    <p class="mb-1">{{ module.content[:150] }}...</p>
+                    <small class="text-muted">Enroll for full content and hands-on exercises</small>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="alert alert-info">Modules for this course are being updated. Check back soon!</p>
+    {% endif %}
+    
+    <div class="card mt-5 bg-light">
+        <div class="card-body text-center">
+            <h3 class="card-title">Ready to Start Learning?</h3>
+            <p class="card-text">Enroll now to access full course content, interactive modules, progress tracking, and AI-powered recommendations.</p>
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Enroll Now to Access Full Content</a>
+            <p class="mt-3">
+                <small class="text-muted">Already have an account? <a href="{{ url_for('login') }}">Login here</a></small>
+            </p>
+        </div>
+    </div>
+{% endblock %}
+

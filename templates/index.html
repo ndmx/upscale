@@ -1,16 +1,30 @@
 {% extends 'base.html' %}
 {% block title %}Home{% endblock %}
 {% block content %}
-    <h1 class="mt-4">Welcome to Upscale AI Bootcamp</h1>
-    <p>Democratizing AI-adapted skills in cybersecurity, data engineering, and web dev for West Africa.</p>
-    <h2>Available Courses</h2>
-    <ul class="list-group">
+    <div class="jumbotron mt-4 p-5 bg-light rounded">
+        <h1 class="display-4">Welcome to Upscale AI Bootcamp</h1>
+        <p class="lead">Democratizing AI-adapted skills in cybersecurity, data engineering, and web development for West Africa.</p>
+        <hr class="my-4">
+        <p>Join our 3-month intensive program designed specifically for West African professionals. Build in-demand skills adapted for the AI era.</p>
+        <div class="mt-4">
+            <a href="{{ url_for('courses') }}" class="btn btn-info btn-lg me-2">Browse Courses in Detail</a>
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started</a>
+        </div>
+    </div>
+    
+    <h2 class="mt-5">Available Courses</h2>
+    <div class="row mt-4">
         {% for course in courses %}
-            <li class="list-group-item">
-                <strong>{{ course.title }}</strong>: {{ course.description }}
-            </li>
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ course.title }}</h5>
+                        <p class="card-text">{{ course.description[:100] }}...</p>
+                        <a href="{{ url_for('course_detail', course_id=course.id) }}" class="btn btn-sm btn-outline-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-    </ul>
-    <a href="{{ url_for('register') }}" class="btn btn-primary mt-3">Get Started</a>
+    </div>
 {% endblock %}
 
