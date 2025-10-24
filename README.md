@@ -20,38 +20,106 @@ A Flask-based web application for the Upscale AI Bootcamp, democratizing AI-adap
 
 - Python 3.8 or higher
 - pip (Python package manager)
+- Git (for cloning the repository)
 
-## Installation
+## Quick Start - Run the App Locally
 
-1. **Install dependencies**:
+Choose your operating system and follow the instructions below:
+
+### 🍎 macOS / 🐧 Linux
+
+1. **Clone the repository**:
 ```bash
+git clone https://github.com/ndmx/upscale.git
+cd upscale
+```
+
+2. **Run the automated setup script**:
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+3. **Configure your keys** (after setup completes):
+   - Open `app.py` in your text editor
+   - Line 9: Replace `'your_secret_key_change_this'` with a secure random string
+   - Line 12: Add your Paystack secret key (get it from [Paystack Dashboard](https://dashboard.paystack.com/#/settings/developer))
+   - For testing, use test mode keys (starts with `sk_test_`)
+
+4. **Start the application**:
+```bash
+python3 app.py
+```
+
+5. **View in browser**:
+   - Open: `http://127.0.0.1:5000/`
+   - The app is now running on your local device! 🚀
+
+### 🪟 Windows
+
+1. **Clone the repository**:
+```cmd
+git clone https://github.com/ndmx/upscale.git
+cd upscale
+```
+
+2. **Install dependencies manually** (Windows doesn't support .sh scripts):
+```cmd
 pip install -r requirements.txt
 ```
 
-Or install manually:
-```bash
+Or install packages individually:
+```cmd
 pip install flask flask-sqlalchemy flask-login requests
 ```
 
-2. **Configure Paystack**:
-   - Sign up at [Paystack](https://paystack.com/)
-   - Get your Secret Key from the dashboard
-   - Open `app.py` and replace `'your_paystack_secret_key'` with your actual key
+3. **Configure your keys**:
+   - Open `app.py` in Notepad or your preferred editor
+   - Line 9: Replace `'your_secret_key_change_this'` with a secure random string
+   - Line 12: Add your Paystack secret key (get it from [Paystack Dashboard](https://dashboard.paystack.com/#/settings/developer))
    - For testing, use test mode keys (starts with `sk_test_`)
 
-3. **Update Secret Key**:
-   - In `app.py`, change `'your_secret_key_change_this'` to a random string for production
-
-## Running the Application
-
-1. **Start the Flask server**:
-```bash
+4. **Start the application**:
+```cmd
 python app.py
 ```
 
-2. **Access the application**:
-   - Open your browser and navigate to: `http://127.0.0.1:5000/`
-   - The database (`upscale.db`) will be created automatically on first run
+5. **View in browser**:
+   - Open: `http://127.0.0.1:5000/`
+   - The app is now running on your local device! 🚀
+
+## Alternative Manual Installation (All Platforms)
+
+If the automated setup doesn't work, follow these steps:
+
+1. **Verify Python installation**:
+```bash
+python3 --version  # macOS/Linux
+python --version   # Windows
+```
+Should show Python 3.8 or higher.
+
+2. **Install dependencies**:
+```bash
+pip3 install flask flask-sqlalchemy flask-login requests  # macOS/Linux
+pip install flask flask-sqlalchemy flask-login requests   # Windows
+```
+
+3. **Configure secrets** (see configuration steps above)
+
+4. **Run the app**:
+```bash
+python3 app.py  # macOS/Linux
+python app.py   # Windows
+```
+
+5. **Access in browser**: Navigate to `http://127.0.0.1:5000/`
+
+## First Run Notes
+
+- The database (`upscale.db`) will be created automatically on first run
+- Sample courses with modules will be seeded automatically
+- No internet connection needed after dependencies are installed (except for Paystack payments)
 
 ## Usage Flow
 
@@ -66,18 +134,25 @@ python app.py
 
 ```
 Upscale/
-├── app.py                 # Main Flask application
-├── requirements.txt       # Python dependencies
-├── upscale.db            # SQLite database (auto-generated)
-├── templates/            # HTML templates
-│   ├── base.html         # Base template with Bootstrap
-│   ├── index.html        # Home page
-│   ├── register.html     # Registration form
-│   ├── login.html        # Login form
-│   ├── enroll.html       # Enrollment/payment form
-│   ├── dashboard.html    # User dashboard
-│   └── module.html       # Individual module view
-└── README.md             # This file
+├── app.py                    # Main Flask application
+├── requirements.txt          # Python dependencies
+├── setup.sh                  # Automated setup script (macOS/Linux)
+├── instance/
+│   └── upscale.db           # SQLite database (auto-generated)
+├── static/
+│   └── css/
+│       └── custom.css       # Custom styling
+├── templates/               # HTML templates
+│   ├── base.html            # Base template with Bootstrap
+│   ├── index.html           # Home page
+│   ├── courses.html         # Public course listing
+│   ├── course_detail.html   # Individual course pages
+│   ├── register.html        # Registration form
+│   ├── login.html           # Login form
+│   ├── enroll.html          # Enrollment/payment form
+│   ├── dashboard.html       # User dashboard
+│   └── module.html          # Individual module view
+└── README.md                # This file
 ```
 
 ## Database Models
