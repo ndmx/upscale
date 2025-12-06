@@ -52,42 +52,35 @@
             </div>
         </div>
 
-        <!-- What You'll Learn -->
+        <!-- What You'll Learn (Highlights) -->
         <div class="row mt-5">
             <div class="col-md-8">
                 <h2 class="mb-4"><i class="bi bi-journal-richtext"></i> What You'll Learn</h2>
                 
-                {% if course.modules %}
-                    <div class="accordion" id="modulesAccordion">
-                        {% for module in course.modules %}
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="heading{{ module.id }}">
-                                    <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" 
-                                            data-bs-toggle="collapse" data-bs-target="#collapse{{ module.id }}" 
-                                            aria-expanded="{% if loop.first %}true{% else %}false{% endif %}" 
-                                            aria-controls="collapse{{ module.id }}">
-                                        <i class="bi bi-book me-2"></i> Module {{ loop.index }}: {{ module.title }}
-                                    </button>
-                                </h2>
-                                <div id="collapse{{ module.id }}" 
-                                     class="accordion-collapse collapse {% if loop.first %}show{% endif %}" 
-                                     aria-labelledby="heading{{ module.id }}" 
-                                     data-bs-parent="#modulesAccordion">
-                                    <div class="accordion-body">
-                                        <p>{{ module.content[:200] }}...</p>
-                                        <div class="alert alert-info">
-                                            <i class="bi bi-lock"></i> <strong>Preview Mode</strong> - 
-                                            Enroll to access full interactive content, exercises, and projects.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                {% if highlights %}
+                    <div class="list-group mb-4">
+                        {% for item in highlights %}
+                        <div class="list-group-item d-flex align-items-start">
+                            <i class="bi bi-check-circle text-success me-3 mt-1"></i>
+                            <span>{{ item }}</span>
+                        </div>
                         {% endfor %}
                     </div>
                 {% else %}
                     <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> Modules for this course are being updated. Check back soon!
+                        <i class="bi bi-info-circle"></i> Highlights for this course are being updated. Check back soon!
                     </div>
+                {% endif %}
+
+                {% if prerequisites %}
+                <div class="mb-4">
+                    <h4 class="mb-2"><i class="bi bi-lightbulb"></i> Suggested Prerequisites</h4>
+                    <ul class="list-group list-group-flush">
+                        {% for prereq in prerequisites %}
+                        <li class="list-group-item">{{ prereq }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
                 {% endif %}
 
                 {% if curriculum %}

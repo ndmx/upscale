@@ -379,48 +379,93 @@ JOB_DATABASE = {
     }
 }
 
-CURRICULUM_DATA = {
+MODULE_HIGHLIGHTS = {
     "Cybersecurity with AI": [
-        ("Week 1", "Security foundations, threat landscape, CIA triad, auth/identity, network basics"),
-        ("Week 2", "OS & network hardening, firewalls, VPN/TLS, secure configs, intro cloud security"),
-        ("Week 3", "Threat modeling, OWASP Top 10, CVEs, recon basics"),
-        ("Week 4", "Logging & SIEM (Splunk/ELK), detection rules, normalization"),
-        ("Week 5", "AI for detection: anomaly detection, ML for phishing/malware on logs"),
-        ("Week 6", "Phishing defense: email/web, sandboxing, AI-assisted triage"),
-        ("Week 7", "Endpoint security & EDR, response playbooks, containment"),
-        ("Week 8", "Cloud security (AWS/Azure): IAM, least privilege, segmentation, secrets"),
-        ("Week 9", "Incident response lifecycle, tabletop, runbooks, metrics"),
-        ("Week 10", "Offensive basics for defenders: exploit chains, password attacks, pentest tooling (ethical)"),
-        ("Week 11", "Compliance & governance: NDPA, GDPR basics, vendor risk, policy writing"),
-        ("Week 12", "Capstone: AI-assisted detection + response mini-stack, report & hardening plan"),
+        "Security & networking foundations for defenders",
+        "Threat modeling and OWASP Top 10 basics",
+        "Logging/SIEM + simple anomaly detection model",
+        "Phishing/web defense and playbooks",
+        "Endpoint/EDR basics and containment",
+        "Incident response runbooks and tabletop"
     ],
     "Data Engineering for AI": [
-        ("Week 1", "DE foundations: batch vs streaming, storage formats, schemas"),
-        ("Week 2", "Python for DE, Pandas transforms, SQL basics"),
-        ("Week 3", "ETL/ELT, Airflow orchestration, DAG design, retries/alerts"),
-        ("Week 4", "Data modeling (star/snowflake), partitioning, Parquet/Avro"),
-        ("Week 5", "Warehousing vs lake/lakehouse, querying (DuckDB/BigQuery patterns)"),
-        ("Week 6", "Data quality & observability: tests, SLAs, lineage basics"),
-        ("Week 7", "APIs & ingestion: REST/CSV/JSON, incremental loads, CDC basics"),
-        ("Week 8", "Cloud integration (AWS/Azure): object storage, IAM, cost-aware design"),
-        ("Week 9", "Streaming intro: Kafka/Kinesis patterns, lightweight demo"),
-        ("Week 10", "ML readiness: feature extraction, leakage avoidance, dataset versioning"),
-        ("Week 11", "Governance & compliance: NDPA/GDPR basics, PII handling, access controls"),
-        ("Week 12", "Capstone: end-to-end pipeline → clean/validate → model-ready dataset + ML trigger"),
+        "SQL/Pandas fundamentals for data prep",
+        "ETL/ELT with a single orchestrator (Airflow)",
+        "Data modeling + Parquet and warehouse basics",
+        "Data quality checks with Great Expectations",
+        "Cloud storage + IAM cost-aware design",
+        "End-to-end pipeline to ML-ready datasets"
     ],
     "Web App Development with AI": [
-        ("Week 1", "Web fundamentals: HTTP/REST/JSON, accessibility, toolchain setup"),
-        ("Week 2", "Frontend (React/Vue): components, state/props, routing, forms"),
-        ("Week 3", "Styling systems: responsive layouts, design tokens, accessibility passes"),
-        ("Week 4", "Backend (Flask/Express): routing, controllers, auth/session/JWT"),
-        ("Week 5", "Data layer: SQL vs NoSQL, ORM basics, migrations, CRUD API"),
-        ("Week 6", "AI integrations: call LLM API, prompt design, errors/timeouts/retries"),
-        ("Week 7", "AI patterns: search+summarize, chatbot, recommendations; guardrails/rate limits"),
-        ("Week 8", "Security: OWASP Top 10, secure headers, validation, secrets handling"),
-        ("Week 9", "Performance: caching, CDN, lazy loading, bundle optimization, CWV basics"),
-        ("Week 10", "Testing: unit/integration/API, component tests, CI basics"),
-        ("Week 11", "Deployment: containerize, env configs, deploy (Render/Heroku/Vercel), monitoring"),
-        ("Week 12", "Capstone: full-stack AI app (chatbot/FAQ/recommender) with auth, DB, deployment"),
+        "Modern frontend (React) essentials",
+        "Backend API with Flask/Express and auth",
+        "Data layer with ORM + migrations",
+        "AI API integration (LLM FAQ/chat)",
+        "Security and performance fundamentals",
+        "Full-stack AI capstone with deployment"
+    ]
+}
+
+PREREQUISITES = {
+    "Cybersecurity with AI": [
+        "Basic computer literacy and internet use",
+        "Familiarity with files, folders, and installing apps",
+        "Optional: basic Python scripting (helpful, not required)"
+    ],
+    "Data Engineering for AI": [
+        "Basic Python (variables, loops) or willingness to learn quickly",
+        "Basic SQL awareness (SELECT, WHERE) — we reinforce in Week 1-2",
+        "Comfort with CSV/Excel data handling"
+    ],
+    "Web App Development with AI": [
+        "Basic HTML/CSS familiarity",
+        "Optional: Intro JavaScript (we reinforce essentials)",
+        "Comfort using a modern browser dev console"
+    ]
+}
+
+CURRICULUM_DATA = {
+    "Cybersecurity with AI": [
+        ("Week 1", "Security & networking foundations; threat landscape; CIA triad"),
+        ("Week 2", "Auth/identity basics; secure configs; intro cloud security"),
+        ("Week 3", "Threat modeling, OWASP Top 10, recon overview"),
+        ("Week 4", "Logging & SIEM (light ELK); write simple detection rules"),
+        ("Week 5", "Simple anomaly detection model on sample logs (ML intro)"),
+        ("Week 6", "Phishing/email/web defense; sandboxing; AI-assisted triage"),
+        ("Week 7", "Endpoint/EDR basics; containment playbooks"),
+        ("Week 8", "Cloud IAM & least privilege; secrets; segmentation"),
+        ("Week 9", "Incident response runbooks; tabletop exercise"),
+        ("Week 10", "Alert tuning and metrics; basic automation hooks"),
+        ("Week 11", "Compliance & governance (NDPA/GDPR basics); policies"),
+        ("Week 12", "Capstone: ingest logs → anomaly alert → response checklist"),
+    ],
+    "Data Engineering for AI": [
+        ("Week 1", "Data/SQL/Pandas foundations; schemas & file formats"),
+        ("Week 2", "Modeling basics; Parquet; simple star schema"),
+        ("Week 3", "ETL/ELT with Airflow; DAG design, retries"),
+        ("Week 4", "Data quality with Great Expectations; SLAs"),
+        ("Week 5", "Warehouse vs lakehouse; cost-aware storage patterns"),
+        ("Week 6", "Cloud storage + IAM basics (or local MinIO alt)"),
+        ("Week 7", "APIs/ingestion; incremental loads; CDC overview"),
+        ("Week 8", "Feature extraction; leakage avoidance; dataset versioning basics"),
+        ("Week 9", "Light streaming intro (concept + tiny demo)"),
+        ("Week 10", "Governance/PII/NDPA; access controls"),
+        ("Week 11", "Capstone build: ingest → clean/validate → warehouse"),
+        ("Week 12", "Capstone polish: trigger simple ML training + report"),
+    ],
+    "Web App Development with AI": [
+        ("Week 1", "Web/HTTP/REST fundamentals; accessibility; setup"),
+        ("Week 2", "React essentials: components, state, forms, routing"),
+        ("Week 3", "Styling and responsive layouts; design tokens; a11y pass"),
+        ("Week 4", "Backend API (Flask/Express) + auth/session"),
+        ("Week 5", "Data layer with ORM + migrations; CRUD API"),
+        ("Week 6", "AI API integration: single LLM use-case (FAQ/chat)"),
+        ("Week 7", "AI patterns: search+summarize or recommendations with guardrails"),
+        ("Week 8", "Security: OWASP fundamentals; secrets handling"),
+        ("Week 9", "Performance: caching, lazy loading, basic CWV"),
+        ("Week 10", "Testing: unit/integration/API; light CI"),
+        ("Week 11", "Deployment: containerize + host; monitoring basics"),
+        ("Week 12", "Capstone: full-stack AI app (auth, DB, AI feature, deploy)"),
     ],
 }
 
