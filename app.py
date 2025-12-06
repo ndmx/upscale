@@ -536,7 +536,15 @@ def courses():
 def course_detail(course_id):
     course = Course.query.get_or_404(course_id)
     curriculum = CURRICULUM_DATA.get(course.title, [])
-    return render_template('course_detail.html', course=course, curriculum=curriculum)
+    highlights = MODULE_HIGHLIGHTS.get(course.title, [])
+    prerequisites = PREREQUISITES.get(course.title, [])
+    return render_template(
+        'course_detail.html',
+        course=course,
+        curriculum=curriculum,
+        highlights=highlights,
+        prerequisites=prerequisites
+    )
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
