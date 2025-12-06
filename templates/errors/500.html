@@ -1,33 +1,4 @@
-{% extends 'errors/base_error.html' %}
-{% block title %}Server Error - Upskill Institute{% endblock %}
-
-{% block error_icon %}
-<svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.5"/>
-    <path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="1.5"/>
-    <circle cx="19" cy="5" r="3" fill="#ef4444" stroke="white" stroke-width="1"/>
-</svg>
-{% endblock %}
-
-{% block error_code %}500{% endblock %}
-{% block error_title %}Server Error{% endblock %}
-{% block error_message %}
-Something went wrong on our end. We've been notified and are working to fix it. Please try again in a few moments.
-{% endblock %}
-
-{% block error_actions %}
-<button onclick="location.reload()" class="btn apple-primary">
-    <i class="bi bi-arrow-clockwise"></i> Try Again
-</button>
-<a href="{{ url_for('home') }}" class="btn btn-outline-primary">
-    <i class="bi bi-house"></i> Back to Home
-</a>
-{% endblock %}
-
-{% block error_help %}
-<p>If this problem persists, please <a href="mailto:support@upskillsinstitute.org">report it to our team</a>.</p>
-<p class="error-id" style="margin-top: 16px; font-size: 0.8rem; opacity: 0.5;">
-    Error Reference: {{ g.request_id if g and g.request_id else 'unknown' }}
-</p>
-{% endblock %}
-
+{% extends "errors/base_error.html" %}
+{% set error_code = "500" %}
+{% set error_title = "Server Error" %}
+{% set error_message = "Something went wrong on our end. We've been notified and are working to fix it." %}
