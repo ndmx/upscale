@@ -121,51 +121,6 @@
         </div>
     </div>
 
-    <!-- Testimonials Section -->
-    <div class="testimonials-section">
-        <div class="container">
-            <h2 class="text-center mb-5">Success Stories from Our Community</h2>
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <div class="testimonial">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="testimonial-img" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
-                            <div>
-                                <div class="testimonial-author">Amina Okafor</div>
-                                <div class="testimonial-location">Lagos, Nigeria</div>
-                            </div>
-                        </div>
-                        <p class="testimonial-quote">"Upscale transformed my career! I landed a cybersecurity role at a fintech startup after completing the AI Security course."</p>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="testimonial">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="testimonial-img" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
-                            <div>
-                                <div class="testimonial-author">Kwame Mensah</div>
-                                <div class="testimonial-location">Accra, Ghana</div>
-                            </div>
-                        </div>
-                        <p class="testimonial-quote">"The Data Engineering course gave me practical skills I use daily. The regional focus on connectivity challenges was spot-on!"</p>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="testimonial">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="testimonial-img" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
-                            <div>
-                                <div class="testimonial-author">Fatou Diop</div>
-                                <div class="testimonial-location">Dakar, Senegal</div>
-                            </div>
-                        </div>
-                        <p class="testimonial-quote">"Building AI-powered web apps is now my reality. The mobile-first approach was perfect for our market!"</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Partners Section -->
     <div class="partners-section">
         <div class="container">
@@ -193,6 +148,51 @@
             <h2 class="mb-3">Ready to Transform Your Career?</h2>
             <p class="lead mb-4 text-muted">Join hundreds of West African professionals building AI-adapted skills.</p>
             <a href="{{ url_for('register') }}" class="cta-btn apple-primary btn-lg">Start Learning Today</a>
+        </div>
+    </div>
+
+    <!-- Testimonials Section (moved below final CTA) -->
+    <div class="testimonials-section my-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Success Stories from Our Community</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="testimonial">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-img" style="background: linear-gradient(135deg, #5f7ad6 0%, #7fa9ff 100%);"></div>
+                            <div>
+                                <div class="testimonial-author">Amina Okafor</div>
+                                <div class="testimonial-location">Lagos, Nigeria</div>
+                            </div>
+                        </div>
+                        <p class="testimonial-quote text-muted">"Upscale transformed my career! I landed a cybersecurity role at a fintech startup after completing the AI Security course."</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="testimonial">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-img" style="background: linear-gradient(135deg, #6fb9c8 0%, #8cd8e8 100%);"></div>
+                            <div>
+                                <div class="testimonial-author">Kwame Mensah</div>
+                                <div class="testimonial-location">Accra, Ghana</div>
+                            </div>
+                        </div>
+                        <p class="testimonial-quote text-muted">"The Data Engineering course gave me practical skills I use daily. The regional focus on connectivity challenges was spot-on!"</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="testimonial">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-img" style="background: linear-gradient(135deg, #7ac6a2 0%, #9fe6bf 100%);"></div>
+                            <div>
+                                <div class="testimonial-author">Fatou Diop</div>
+                                <div class="testimonial-location">Dakar, Senegal</div>
+                            </div>
+                        </div>
+                        <p class="testimonial-quote text-muted">"Building AI-powered web apps is now my reality. The mobile-first approach was perfect for our market!"</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
