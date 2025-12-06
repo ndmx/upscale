@@ -89,6 +89,20 @@
                         <i class="bi bi-info-circle"></i> Modules for this course are being updated. Check back soon!
                     </div>
                 {% endif %}
+
+                {% if curriculum %}
+                <div class="mt-5">
+                    <h4 class="mb-3"><i class="bi bi-list-check"></i> Detailed Curriculum (12 Weeks)</h4>
+                    <ul class="list-group list-group-flush">
+                        {% for week, detail in curriculum %}
+                        <li class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-start">
+                            <span class="fw-bold text-primary">{{ week }}</span>
+                            <span class="text-muted ms-md-3 mt-2 mt-md-0">{{ detail }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
                 
                 <!-- Key Benefits -->
                 <div class="mt-5">

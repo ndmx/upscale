@@ -379,6 +379,51 @@ JOB_DATABASE = {
     }
 }
 
+CURRICULUM_DATA = {
+    "Cybersecurity with AI": [
+        ("Week 1", "Security foundations, threat landscape, CIA triad, auth/identity, network basics"),
+        ("Week 2", "OS & network hardening, firewalls, VPN/TLS, secure configs, intro cloud security"),
+        ("Week 3", "Threat modeling, OWASP Top 10, CVEs, recon basics"),
+        ("Week 4", "Logging & SIEM (Splunk/ELK), detection rules, normalization"),
+        ("Week 5", "AI for detection: anomaly detection, ML for phishing/malware on logs"),
+        ("Week 6", "Phishing defense: email/web, sandboxing, AI-assisted triage"),
+        ("Week 7", "Endpoint security & EDR, response playbooks, containment"),
+        ("Week 8", "Cloud security (AWS/Azure): IAM, least privilege, segmentation, secrets"),
+        ("Week 9", "Incident response lifecycle, tabletop, runbooks, metrics"),
+        ("Week 10", "Offensive basics for defenders: exploit chains, password attacks, pentest tooling (ethical)"),
+        ("Week 11", "Compliance & governance: NDPA, GDPR basics, vendor risk, policy writing"),
+        ("Week 12", "Capstone: AI-assisted detection + response mini-stack, report & hardening plan"),
+    ],
+    "Data Engineering for AI": [
+        ("Week 1", "DE foundations: batch vs streaming, storage formats, schemas"),
+        ("Week 2", "Python for DE, Pandas transforms, SQL basics"),
+        ("Week 3", "ETL/ELT, Airflow orchestration, DAG design, retries/alerts"),
+        ("Week 4", "Data modeling (star/snowflake), partitioning, Parquet/Avro"),
+        ("Week 5", "Warehousing vs lake/lakehouse, querying (DuckDB/BigQuery patterns)"),
+        ("Week 6", "Data quality & observability: tests, SLAs, lineage basics"),
+        ("Week 7", "APIs & ingestion: REST/CSV/JSON, incremental loads, CDC basics"),
+        ("Week 8", "Cloud integration (AWS/Azure): object storage, IAM, cost-aware design"),
+        ("Week 9", "Streaming intro: Kafka/Kinesis patterns, lightweight demo"),
+        ("Week 10", "ML readiness: feature extraction, leakage avoidance, dataset versioning"),
+        ("Week 11", "Governance & compliance: NDPA/GDPR basics, PII handling, access controls"),
+        ("Week 12", "Capstone: end-to-end pipeline → clean/validate → model-ready dataset + ML trigger"),
+    ],
+    "Web App Development with AI": [
+        ("Week 1", "Web fundamentals: HTTP/REST/JSON, accessibility, toolchain setup"),
+        ("Week 2", "Frontend (React/Vue): components, state/props, routing, forms"),
+        ("Week 3", "Styling systems: responsive layouts, design tokens, accessibility passes"),
+        ("Week 4", "Backend (Flask/Express): routing, controllers, auth/session/JWT"),
+        ("Week 5", "Data layer: SQL vs NoSQL, ORM basics, migrations, CRUD API"),
+        ("Week 6", "AI integrations: call LLM API, prompt design, errors/timeouts/retries"),
+        ("Week 7", "AI patterns: search+summarize, chatbot, recommendations; guardrails/rate limits"),
+        ("Week 8", "Security: OWASP Top 10, secure headers, validation, secrets handling"),
+        ("Week 9", "Performance: caching, CDN, lazy loading, bundle optimization, CWV basics"),
+        ("Week 10", "Testing: unit/integration/API, component tests, CI basics"),
+        ("Week 11", "Deployment: containerize, env configs, deploy (Render/Heroku/Vercel), monitoring"),
+        ("Week 12", "Capstone: full-stack AI app (chatbot/FAQ/recommender) with auth, DB, deployment"),
+    ],
+}
+
 # Recommendation Engine
 def calculate_course_recommendation(responses):
     """Calculate which course best matches user responses"""
@@ -445,7 +490,8 @@ def courses():
 @app.route('/course/<int:course_id>')
 def course_detail(course_id):
     course = Course.query.get_or_404(course_id)
-    return render_template('course_detail.html', course=course)
+    curriculum = CURRICULUM_DATA.get(course.title, [])
+    return render_template('course_detail.html', course=course, curriculum=curriculum)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
