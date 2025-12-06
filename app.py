@@ -1,393 +1,63 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, abort, g, make_response
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.exceptions import HTTPException, NotFound, Forbidden, InternalServerError, BadRequest, TooManyRequests
-from datetime import datetime, timedelta
-from functools import wraps
-import requests as http_requests
+from datetime import datetime
+import requests
 import os
 import json
-import re
-import secrets
-import logging
-from logging.handlers import RotatingFileHandler
-import time
-import hashlib
-
-# ============================================================================
-# APPLICATION CONFIGURATION
-# ============================================================================
 
 app = Flask(__name__)
-
-# Security Configuration - Use environment variables in production
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32))
-
-# Database URL handling (Railway/Render use postgres:// but SQLAlchemy needs postgresql://)
-database_url = os.environ.get('DATABASE_URL', 'sqlite:///upscale.db')
-if database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql://', 1)
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SECRET_KEY'] = 'your_secret_key_change_this'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///upscale.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_pre_ping': True,  # Verify connections before use
-    'pool_recycle': 300,    # Recycle connections every 5 minutes
-}
-app.config['PAYSTACK_SECRET_KEY'] = os.environ.get('PAYSTACK_SECRET_KEY', 'your_paystack_secret_key')
-
-# Session Security
-app.config['SESSION_COOKIE_SECURE'] = os.environ.get('FLASK_ENV') == 'production'
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
-
-# CSRF Protection
-app.config['WTF_CSRF_ENABLED'] = True
-app.config['WTF_CSRF_TIME_LIMIT'] = 3600  # 1 hour
-
-# Rate Limiting Configuration
-app.config['RATELIMIT_STORAGE_URL'] = 'memory://'
-app.config['RATELIMIT_DEFAULT'] = '200 per day, 50 per hour'
-app.config['RATELIMIT_HEADERS_ENABLED'] = True
-
-# ============================================================================
-# LOGGING CONFIGURATION
-# ============================================================================
-
-if not os.path.exists('logs'):
-    os.makedirs('logs')
-
-# File handler for errors
-file_handler = RotatingFileHandler(
-    'logs/upskill.log',
-    maxBytes=10240000,  # 10MB
-    backupCount=10
-)
-file_handler.setFormatter(logging.Formatter(
-    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-))
-file_handler.setLevel(logging.INFO)
-app.logger.addHandler(file_handler)
-app.logger.setLevel(logging.INFO)
-app.logger.info('Upskill Institute Application Startup')
-
-# ============================================================================
-# EXTENSIONS INITIALIZATION
-# ============================================================================
-
+app.config['PAYSTACK_SECRET_KEY'] = 'your_paystack_secret_key'  # From Paystack dashboard
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-login_manager.login_message = 'Please log in to access this page.'
-login_manager.login_message_category = 'info'
-login_manager.session_protection = 'strong'
 
-# CSRF Protection
-try:
-    from flask_wtf.csrf import CSRFProtect, CSRFError
-    csrf = CSRFProtect(app)
-except ImportError:
-    csrf = None
-    app.logger.warning('Flask-WTF not installed. CSRF protection disabled.')
-
-# Rate Limiting
-try:
-    from flask_limiter import Limiter
-    from flask_limiter.util import get_remote_address
-    limiter = Limiter(
-        app=app,
-        key_func=get_remote_address,
-        default_limits=["200 per day", "50 per hour"],
-        storage_uri="memory://",
-    )
-except ImportError:
-    limiter = None
-    app.logger.warning('Flask-Limiter not installed. Rate limiting disabled.')
-
-# Security Headers (Talisman)
-try:
-    from flask_talisman import Talisman
-    # Only enable in production
-    if os.environ.get('FLASK_ENV') == 'production':
-        talisman = Talisman(
-            app,
-            force_https=True,
-            strict_transport_security=True,
-            strict_transport_security_max_age=31536000,
-            content_security_policy={
-                'default-src': "'self'",
-                'script-src': ["'self'", 'cdn.jsdelivr.net', "'unsafe-inline'"],
-                'style-src': ["'self'", 'cdn.jsdelivr.net', "'unsafe-inline'"],
-                'font-src': ["'self'", 'cdn.jsdelivr.net'],
-                'img-src': ["'self'", 'data:', 'https:'],
-            },
-        )
-except ImportError:
-    app.logger.warning('Flask-Talisman not installed. Security headers limited.')
-
-# Input Sanitization
-try:
-    import bleach
-    ALLOWED_TAGS = []  # No HTML allowed
-    ALLOWED_ATTRIBUTES = {}
-except ImportError:
-    bleach = None
-    app.logger.warning('Bleach not installed. Input sanitization limited.')
-
-# ============================================================================
-# UTILITY FUNCTIONS
-# ============================================================================
-
-def sanitize_input(text):
-    """Sanitize user input to prevent XSS attacks"""
-    if text is None:
-        return None
-    if not isinstance(text, str):
-        return text
-    # Strip HTML tags
-    if bleach:
-        text = bleach.clean(text, tags=[], strip=True)
-    # Remove potentially dangerous characters
-    text = text.strip()
-    return text
-
-def validate_email(email):
-    """Validate email format"""
-    if not email:
-        return False
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    return bool(re.match(pattern, email)) and len(email) <= 254
-
-def validate_password(password):
-    """Validate password strength"""
-    if not password or len(password) < 8:
-        return False, "Password must be at least 8 characters long."
-    if len(password) > 128:
-        return False, "Password is too long."
-    if not re.search(r'[A-Za-z]', password):
-        return False, "Password must contain at least one letter."
-    if not re.search(r'\d', password):
-        return False, "Password must contain at least one number."
-    return True, "Valid password."
-
-def validate_name(name):
-    """Validate user name"""
-    if not name or len(name) < 2:
-        return False, "Name must be at least 2 characters."
-    if len(name) > 100:
-        return False, "Name is too long."
-    # Only allow letters, spaces, hyphens, and apostrophes
-    if not re.match(r"^[A-Za-z\s\-']+$", name):
-        return False, "Name contains invalid characters."
-    return True, "Valid name."
-
-def get_client_ip():
-    """Get client IP address, handling proxies"""
-    if request.headers.get('X-Forwarded-For'):
-        return request.headers.get('X-Forwarded-For').split(',')[0].strip()
-    return request.remote_addr
-
-def generate_session_id():
-    """Generate a secure session ID"""
-    return secrets.token_urlsafe(32)
-
-def hash_for_logging(sensitive_data):
-    """Hash sensitive data for safe logging"""
-    return hashlib.sha256(str(sensitive_data).encode()).hexdigest()[:16]
-
-# ============================================================================
-# SECURITY MIDDLEWARE
-# ============================================================================
-
-@app.before_request
-def before_request():
-    """Security checks before each request"""
-    # Track request timing
-    g.start_time = time.time()
-    
-    # Generate request ID for logging
-    g.request_id = secrets.token_hex(8)
-    
-    # Validate request size (prevent DoS)
-    if request.content_length and request.content_length > 10 * 1024 * 1024:  # 10MB
-        abort(413)
-    
-    # Log request (with IP hashed for privacy in logs)
-    app.logger.info(f'[{g.request_id}] {request.method} {request.path} from {hash_for_logging(get_client_ip())}')
-
-@app.after_request
-def after_request(response):
-    """Add security headers and log response"""
-    # Security Headers
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
-    
-    # Cache control for security
-    if 'Cache-Control' not in response.headers:
-        if request.path.startswith('/static/'):
-            # Cache static files for 1 year
-            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-        else:
-            # Don't cache dynamic content
-            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private'
-    
-    # Log response time
-    if hasattr(g, 'start_time'):
-        duration = (time.time() - g.start_time) * 1000  # ms
-        if duration > 1000:  # Log slow requests
-            app.logger.warning(f'[{g.request_id}] Slow request: {duration:.2f}ms')
-    
-    return response
-
-# ============================================================================
-# ERROR HANDLERS
-# ============================================================================
-
-@app.errorhandler(400)
-def bad_request_error(error):
-    """Handle bad request errors"""
-    app.logger.warning(f'Bad Request: {request.url} - {str(error)}')
-    return render_template('errors/400.html', error=error), 400
-
-@app.errorhandler(403)
-def forbidden_error(error):
-    """Handle forbidden errors"""
-    app.logger.warning(f'Forbidden: {request.url} - User: {current_user.id if current_user.is_authenticated else "anonymous"}')
-    return render_template('errors/403.html', error=error), 403
-
-@app.errorhandler(404)
-def not_found_error(error):
-    """Handle page not found errors"""
-    app.logger.info(f'Not Found: {request.url}')
-    return render_template('errors/404.html', error=error), 404
-
-@app.errorhandler(413)
-def request_entity_too_large(error):
-    """Handle request too large errors"""
-    app.logger.warning(f'Request Too Large: {request.url}')
-    return render_template('errors/413.html', error=error), 413
-
-@app.errorhandler(429)
-def ratelimit_handler(error):
-    """Handle rate limit exceeded"""
-    app.logger.warning(f'Rate Limit Exceeded: {request.url} from {hash_for_logging(get_client_ip())}')
-    return render_template('errors/429.html', error=error), 429
-
-@app.errorhandler(500)
-def internal_error(error):
-    """Handle internal server errors"""
-    db.session.rollback()  # Rollback any failed transactions
-    app.logger.error(f'Server Error: {request.url} - {str(error)}', exc_info=True)
-    return render_template('errors/500.html', error=error), 500
-
-@app.errorhandler(CSRFError if csrf else Exception)
-def handle_csrf_error(error):
-    """Handle CSRF errors"""
-    if isinstance(error, CSRFError) if csrf else False:
-        app.logger.warning(f'CSRF Error: {request.url} from {hash_for_logging(get_client_ip())}')
-        flash('Your session has expired. Please try again.', 'warning')
-        return redirect(request.referrer or url_for('home'))
-    raise error
-
-@app.errorhandler(Exception)
-def handle_exception(error):
-    """Handle all unhandled exceptions"""
-    # Pass through HTTP errors
-    if isinstance(error, HTTPException):
-        return error
-    
-    # Log the error
-    app.logger.error(f'Unhandled Exception: {str(error)}', exc_info=True)
-    
-    # Rollback any failed database transactions
-    db.session.rollback()
-    
-    # Return generic error page
-    return render_template('errors/500.html', error=error), 500
-
-# ============================================================================
-# MODELS
-# ============================================================================
-
+# Models
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(254), unique=True, nullable=False, index=True)
-    password = db.Column(db.String(256), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
     payment_plan = db.Column(db.String(50))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    last_login = db.Column(db.DateTime)
-    is_active = db.Column(db.Boolean, default=True)
-    failed_login_attempts = db.Column(db.Integer, default=0)
-    locked_until = db.Column(db.DateTime)
     payments = db.relationship('Payment', backref='user', lazy=True)
-    
-    def is_locked(self):
-        """Check if account is locked"""
-        if self.locked_until and self.locked_until > datetime.utcnow():
-            return True
-        return False
-    
-    def increment_failed_login(self):
-        """Increment failed login counter and lock if needed"""
-        self.failed_login_attempts += 1
-        if self.failed_login_attempts >= 5:
-            self.locked_until = datetime.utcnow() + timedelta(minutes=15)
-        db.session.commit()
-    
-    def reset_failed_login(self):
-        """Reset failed login counter"""
-        self.failed_login_attempts = 0
-        self.locked_until = None
-        self.last_login = datetime.utcnow()
-        db.session.commit()
 
 class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    reference = db.Column(db.String(100), unique=True, index=True)
+    reference = db.Column(db.String(100), unique=True)
     amount = db.Column(db.Integer)  # In kobo
     status = db.Column(db.String(50))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    verified_at = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
-    description = db.Column(db.Text)
-    is_active = db.Column(db.Boolean, default=True)
+    description = db.Column(db.Text)  # Changed to Text for longer descriptions
     modules = db.relationship('Module', backref='course', lazy=True)
 
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
     content = db.Column(db.Text)
-    order = db.Column(db.Integer, default=0)
-    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), index=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
     progresses = db.relationship('Progress', backref='module', lazy=True)
 
 class Progress(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    module_id = db.Column(db.Integer, db.ForeignKey('module.id'), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     completed = db.Column(db.Boolean, default=False)
-    completed_at = db.Column(db.DateTime)
-    
-    __table_args__ = (
-        db.UniqueConstraint('user_id', 'module_id', name='unique_user_module'),
-    )
 
 class QuestionnaireResponse(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    session_id = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    session_id = db.Column(db.String(100), unique=True, nullable=False)
     experience_level = db.Column(db.String(50))
-    interests = db.Column(db.Text)
+    interests = db.Column(db.Text)  # JSON string
     goals = db.Column(db.Text)
-    current_skills = db.Column(db.Text)
+    current_skills = db.Column(db.Text)  # JSON string
     learning_style = db.Column(db.String(100))
     time_commitment = db.Column(db.String(50))
     recommended_course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
@@ -397,55 +67,12 @@ class QuestionnaireResponse(db.Model):
     
     recommended_course = db.relationship('Course', backref='questionnaire_responses', lazy=True)
 
-class SecurityLog(db.Model):
-    """Log security-related events"""
-    id = db.Column(db.Integer, primary_key=True)
-    event_type = db.Column(db.String(50), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    ip_address = db.Column(db.String(50))
-    user_agent = db.Column(db.String(500))
-    details = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-def log_security_event(event_type, user_id=None, details=None):
-    """Log a security event to the database"""
-    try:
-        log = SecurityLog(
-            event_type=event_type,
-            user_id=user_id,
-            ip_address=get_client_ip(),
-            user_agent=request.headers.get('User-Agent', '')[:500],
-            details=str(details)[:1000] if details else None
-        )
-        db.session.add(log)
-        db.session.commit()
-    except Exception as e:
-        app.logger.error(f'Failed to log security event: {e}')
-
-# ============================================================================
-# USER LOADER
-# ============================================================================
-
+# Load user for Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
-    try:
-        user = User.query.get(int(user_id))
-        if user and user.is_active and not user.is_locked():
-            return user
-        return None
-    except Exception:
-        return None
+    return User.query.get(int(user_id))
 
-@login_manager.unauthorized_handler
-def unauthorized():
-    """Handle unauthorized access attempts"""
-    flash('Please log in to access this page.', 'warning')
-    return redirect(url_for('login', next=request.url))
-
-# ============================================================================
-# DATABASE INITIALIZATION
-# ============================================================================
-
+# Create DB and seed data if not exists
 with app.app_context():
     db.create_all()
     if Course.query.count() == 0:
@@ -470,15 +97,12 @@ with app.app_context():
             course = Course(title=c["title"], description=c["description"])
             db.session.add(course)
             db.session.commit()
-            for idx, m in enumerate(c["modules"]):
-                module = Module(title=m["title"], content=m["content"], course_id=course.id, order=idx)
+            for m in c["modules"]:
+                module = Module(title=m["title"], content=m["content"], course_id=course.id)
                 db.session.add(module)
             db.session.commit()
 
-# ============================================================================
-# QUESTIONNAIRE DATA
-# ============================================================================
-
+# Questionnaire Questions Structure
 QUESTIONNAIRE_QUESTIONS = [
     # Section 1: Current Experience
     {
@@ -755,100 +379,7 @@ JOB_DATABASE = {
     }
 }
 
-MODULE_HIGHLIGHTS = {
-    "Cybersecurity with AI": [
-        "Security & networking foundations for defenders",
-        "Threat modeling and OWASP Top 10 basics",
-        "Logging/SIEM + simple anomaly detection model",
-        "Phishing/web defense and playbooks",
-        "Endpoint/EDR basics and containment",
-        "Incident response runbooks and tabletop"
-    ],
-    "Data Engineering for AI": [
-        "SQL/Pandas fundamentals for data prep",
-        "ETL/ELT with a single orchestrator (Airflow)",
-        "Data modeling + Parquet and warehouse basics",
-        "Data quality checks with Great Expectations",
-        "Cloud storage + IAM cost-aware design",
-        "End-to-end pipeline to ML-ready datasets"
-    ],
-    "Web App Development with AI": [
-        "Modern frontend (React) essentials",
-        "Backend API with Flask/Express and auth",
-        "Data layer with ORM + migrations",
-        "AI API integration (LLM FAQ/chat)",
-        "Security and performance fundamentals",
-        "Full-stack AI capstone with deployment"
-    ]
-}
-
-PREREQUISITES = {
-    "Cybersecurity with AI": [
-        "Basic computer literacy and internet use",
-        "Familiarity with files, folders, and installing apps",
-        "Optional: basic Python scripting (helpful, not required)"
-    ],
-    "Data Engineering for AI": [
-        "Basic Python (variables, loops) or willingness to learn quickly",
-        "Basic SQL awareness (SELECT, WHERE) — we reinforce in Week 1-2",
-        "Comfort with CSV/Excel data handling"
-    ],
-    "Web App Development with AI": [
-        "Basic HTML/CSS familiarity",
-        "Optional: Intro JavaScript (we reinforce essentials)",
-        "Comfort using a modern browser dev console"
-    ]
-}
-
-CURRICULUM_DATA = {
-    "Cybersecurity with AI": [
-        ("Week 1", "Security & networking foundations; threat landscape; CIA triad"),
-        ("Week 2", "Auth/identity basics; secure configs; intro cloud security"),
-        ("Week 3", "Threat modeling, OWASP Top 10, recon overview"),
-        ("Week 4", "Logging & SIEM (light ELK); write simple detection rules"),
-        ("Week 5", "Simple anomaly detection model on sample logs (ML intro)"),
-        ("Week 6", "Phishing/email/web defense; sandboxing; AI-assisted triage"),
-        ("Week 7", "Endpoint/EDR basics; containment playbooks"),
-        ("Week 8", "Cloud IAM & least privilege; secrets; segmentation"),
-        ("Week 9", "Incident response runbooks; tabletop exercise"),
-        ("Week 10", "Alert tuning and metrics; basic automation hooks"),
-        ("Week 11", "Compliance & governance (NDPA/GDPR basics); policies"),
-        ("Week 12", "Capstone: ingest logs → anomaly alert → response checklist"),
-    ],
-    "Data Engineering for AI": [
-        ("Week 1", "Data/SQL/Pandas foundations; schemas & file formats"),
-        ("Week 2", "Modeling basics; Parquet; simple star schema"),
-        ("Week 3", "ETL/ELT with Airflow; DAG design, retries"),
-        ("Week 4", "Data quality with Great Expectations; SLAs"),
-        ("Week 5", "Warehouse vs lakehouse; cost-aware storage patterns"),
-        ("Week 6", "Cloud storage + IAM basics (or local MinIO alt)"),
-        ("Week 7", "APIs/ingestion; incremental loads; CDC overview"),
-        ("Week 8", "Feature extraction; leakage avoidance; dataset versioning basics"),
-        ("Week 9", "Light streaming intro (concept + tiny demo)"),
-        ("Week 10", "Governance/PII/NDPA; access controls"),
-        ("Week 11", "Capstone build: ingest → clean/validate → warehouse"),
-        ("Week 12", "Capstone polish: trigger simple ML training + report"),
-    ],
-    "Web App Development with AI": [
-        ("Week 1", "Web/HTTP/REST fundamentals; accessibility; setup"),
-        ("Week 2", "React essentials: components, state, forms, routing"),
-        ("Week 3", "Styling and responsive layouts; design tokens; a11y pass"),
-        ("Week 4", "Backend API (Flask/Express) + auth/session"),
-        ("Week 5", "Data layer with ORM + migrations; CRUD API"),
-        ("Week 6", "AI API integration: single LLM use-case (FAQ/chat)"),
-        ("Week 7", "AI patterns: search+summarize or recommendations with guardrails"),
-        ("Week 8", "Security: OWASP fundamentals; secrets handling"),
-        ("Week 9", "Performance: caching, lazy loading, basic CWV"),
-        ("Week 10", "Testing: unit/integration/API; light CI"),
-        ("Week 11", "Deployment: containerize + host; monitoring basics"),
-        ("Week 12", "Capstone: full-stack AI app (auth, DB, AI feature, deploy)"),
-    ],
-}
-
-# ============================================================================
-# RECOMMENDATION ENGINE
-# ============================================================================
-
+# Recommendation Engine
 def calculate_course_recommendation(responses):
     """Calculate which course best matches user responses"""
     scores = {
@@ -863,12 +394,14 @@ def calculate_course_recommendation(responses):
             continue
             
         if question['type'] == 'single':
+            # Single choice question
             option = next((opt for opt in question['options'] if opt['value'] == answer), None)
             if option:
                 scores['Cybersecurity with AI'] += option.get('cyber', 0)
                 scores['Data Engineering for AI'] += option.get('data', 0)
                 scores['Web App Development with AI'] += option.get('web', 0)
         elif question['type'] == 'multiple':
+            # Multiple choice question
             if isinstance(answer, list):
                 for ans_value in answer:
                     option = next((opt for opt in question['options'] if opt['value'] == ans_value), None)
@@ -877,532 +410,220 @@ def calculate_course_recommendation(responses):
                         scores['Data Engineering for AI'] += option.get('data', 0)
                         scores['Web App Development with AI'] += option.get('web', 0)
     
+    # Find the course with highest score
     max_score = max(scores.values())
     if max_score == 0:
+        # Default to web development if no clear match
         recommended_course = 'Web App Development with AI'
         match_percentage = 60
     else:
         recommended_course = max(scores, key=scores.get)
-        total_possible = len(QUESTIONNAIRE_QUESTIONS) * 5
+        # Calculate match percentage (normalize to 0-100)
+        total_possible = len(QUESTIONNAIRE_QUESTIONS) * 5  # Max score per question is 5
         match_percentage = min(int((max_score / total_possible) * 100), 99)
     
     return recommended_course, match_percentage, scores
 
+# Simple AI recommendation (rule-based; expand with scikit-learn later)
 def recommend_module(user_id, course_id):
-    """Recommend next module for user"""
-    try:
-        completed = Progress.query.filter_by(user_id=user_id, completed=True).count()
-        modules = Module.query.filter_by(course_id=course_id).order_by(Module.order, Module.id).all()
-        if completed < len(modules):
-            return modules[completed]
-        return None
-    except Exception as e:
-        app.logger.error(f'Error recommending module: {e}')
-        return None
-
-# ============================================================================
-# ROUTES - PUBLIC
-# ============================================================================
+    completed = Progress.query.filter_by(user_id=user_id, completed=True).count()
+    modules = Module.query.filter_by(course_id=course_id).order_by(Module.id).all()
+    if completed < len(modules):
+        return modules[completed]  # Next incomplete module
+    return None
 
 @app.route('/')
 def home():
-    """Home page"""
-    try:
-        courses = Course.query.filter_by(is_active=True).all()
-        return render_template('index.html', courses=courses)
-    except Exception as e:
-        app.logger.error(f'Error loading home page: {e}')
-        flash('An error occurred. Please try again.', 'error')
-        return render_template('index.html', courses=[])
+    courses = Course.query.all()
+    return render_template('index.html', courses=courses)
 
 @app.route('/courses')
 def courses():
-    """List all courses"""
-    try:
-        all_courses = Course.query.filter_by(is_active=True).all()
-        return render_template('courses.html', courses=all_courses)
-    except Exception as e:
-        app.logger.error(f'Error loading courses: {e}')
-        flash('Unable to load courses. Please try again.', 'error')
-        return render_template('courses.html', courses=[])
+    all_courses = Course.query.all()
+    return render_template('courses.html', courses=all_courses)
 
 @app.route('/course/<int:course_id>')
 def course_detail(course_id):
-    """Course detail page"""
-    # Validate course_id
-    if course_id < 1 or course_id > 1000000:
-        abort(404)
-    
-    course = Course.query.filter_by(id=course_id, is_active=True).first_or_404()
-    curriculum = CURRICULUM_DATA.get(course.title, [])
-    highlights = MODULE_HIGHLIGHTS.get(course.title, [])
-    prerequisites = PREREQUISITES.get(course.title, [])
-    
-    return render_template(
-        'course_detail.html',
-        course=course,
-        curriculum=curriculum,
-        highlights=highlights,
-        prerequisites=prerequisites
-    )
-
-# ============================================================================
-# ROUTES - AUTHENTICATION
-# ============================================================================
+    course = Course.query.get_or_404(course_id)
+    return render_template('course_detail.html', course=course)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    """User registration with validation"""
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    
     if request.method == 'POST':
-        name = sanitize_input(request.form.get('name', ''))
-        email = sanitize_input(request.form.get('email', '').lower().strip())
-        password = request.form.get('password', '')
-        
-        # Validate name
-        name_valid, name_msg = validate_name(name)
-        if not name_valid:
-            flash(name_msg, 'error')
-            return render_template('register.html')
-        
-        # Validate email
-        if not validate_email(email):
-            flash('Please enter a valid email address.', 'error')
-            return render_template('register.html')
-        
-        # Validate password
-        password_valid, password_msg = validate_password(password)
-        if not password_valid:
-            flash(password_msg, 'error')
-            return render_template('register.html')
-        
-        # Check if email exists
+        name = request.form['name']
+        email = request.form['email']
+        password = generate_password_hash(request.form['password'])
         if User.query.filter_by(email=email).first():
-            log_security_event('registration_duplicate_email', details=email)
-            flash('An account with this email already exists.', 'error')
-            return render_template('register.html')
-        
-        try:
-            # Create user with hashed password
-            hashed_password = generate_password_hash(password, method='pbkdf2:sha256:600000')
-            user = User(name=name, email=email, password=hashed_password)
-            db.session.add(user)
-            db.session.commit()
-            
-            # Log successful registration
-            log_security_event('registration_success', user_id=user.id)
-            
-            login_user(user)
-            flash('Welcome to Upskill! Your account has been created.', 'success')
-            return redirect(url_for('enroll'))
-            
-        except Exception as e:
-            db.session.rollback()
-            app.logger.error(f'Registration error: {e}')
-            flash('An error occurred during registration. Please try again.', 'error')
-    
+            flash('Email already registered.')
+            return redirect(url_for('register'))
+        user = User(name=name, email=email, password=password)
+        db.session.add(user)
+        db.session.commit()
+        login_user(user)
+        return redirect(url_for('enroll'))
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """User login with brute force protection"""
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    
     if request.method == 'POST':
-        email = sanitize_input(request.form.get('email', '').lower().strip())
-        password = request.form.get('password', '')
-        
-        if not email or not password:
-            flash('Please enter both email and password.', 'error')
-            return render_template('login.html')
-        
+        email = request.form['email']
+        password = request.form['password']
         user = User.query.filter_by(email=email).first()
-        
-        if user:
-            # Check if account is locked
-            if user.is_locked():
-                log_security_event('login_locked_account', user_id=user.id)
-                flash('Account temporarily locked due to too many failed attempts. Please try again later.', 'error')
-                return render_template('login.html')
-            
-            # Verify password
-            if check_password_hash(user.password, password):
-                if not user.is_active:
-                    flash('Your account has been deactivated. Please contact support.', 'error')
-                    return render_template('login.html')
-                
-                # Successful login
-                user.reset_failed_login()
-                login_user(user)
-                log_security_event('login_success', user_id=user.id)
-                
-                # Redirect to next page or dashboard
-                next_page = request.args.get('next')
-                if next_page and is_safe_url(next_page):
-                    return redirect(next_page)
-                return redirect(url_for('dashboard'))
-            else:
-                # Failed login
-                user.increment_failed_login()
-                log_security_event('login_failed', user_id=user.id)
-        else:
-            log_security_event('login_unknown_email', details=hash_for_logging(email))
-        
-        flash('Invalid email or password.', 'error')
-    
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('dashboard'))
+        flash('Invalid credentials.')
     return render_template('login.html')
-
-def is_safe_url(target):
-    """Validate redirect URL for open redirect prevention"""
-    from urllib.parse import urlparse, urljoin
-    ref_url = urlparse(request.host_url)
-    test_url = urlparse(urljoin(request.host_url, target))
-    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
 
 @app.route('/logout')
 @login_required
 def logout():
-    """User logout"""
-    log_security_event('logout', user_id=current_user.id)
     logout_user()
-    flash('You have been logged out.', 'info')
     return redirect(url_for('home'))
-
-# ============================================================================
-# ROUTES - PROTECTED
-# ============================================================================
 
 @app.route('/enroll', methods=['GET', 'POST'])
 @login_required
 def enroll():
-    """Enrollment and payment"""
     if request.method == 'POST':
-        payment_plan = sanitize_input(request.form.get('payment', ''))
-        
-        # Validate payment plan
-        if payment_plan not in ['full', 'monthly']:
-            flash('Invalid payment plan selected.', 'error')
-            return render_template('enroll.html')
-        
-        amount = 15000000 if payment_plan == 'full' else 5000000
+        payment_plan = request.form['payment']
+        amount = 15000000 if payment_plan == 'full' else 5000000  # In kobo; e.g., ₦150,000 full or ₦50,000/month
         current_user.payment_plan = payment_plan
-        
-        try:
-            db.session.commit()
-            
-            # Generate secure reference
-            reference = f'upskill_{current_user.id}_{secrets.token_hex(16)}'
-            
-            # Initialize Paystack transaction
-            headers = {
-                'Authorization': f'Bearer {app.config["PAYSTACK_SECRET_KEY"]}',
-                'Content-Type': 'application/json'
-            }
-            data = {
-                'email': current_user.email,
-                'amount': amount,
-                'reference': reference,
-                'callback_url': url_for('payment_callback', _external=True)
-            }
-            
-            response = http_requests.post(
-                'https://api.paystack.co/transaction/initialize',
-                headers=headers,
-                json=data,
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                resp_data = response.json()
-                if resp_data.get('status'):
-                    payment = Payment(
-                        reference=reference,
-                        amount=amount,
-                        status='pending',
-                        user_id=current_user.id
-                    )
-                    db.session.add(payment)
-                    db.session.commit()
-                    
-                    log_security_event('payment_initiated', user_id=current_user.id, details=f'Amount: {amount}')
-                    return redirect(resp_data['data']['authorization_url'])
-            
-            flash('Payment initialization failed. Please try again.', 'error')
-            
-        except http_requests.Timeout:
-            app.logger.error('Paystack timeout')
-            flash('Payment service timeout. Please try again.', 'error')
-        except http_requests.RequestException as e:
-            app.logger.error(f'Paystack error: {e}')
-            flash('Payment service unavailable. Please try again later.', 'error')
-        except Exception as e:
-            db.session.rollback()
-            app.logger.error(f'Enrollment error: {e}')
-            flash('An error occurred. Please try again.', 'error')
-    
+        db.session.commit()
+
+        # Initialize Paystack transaction
+        headers = {'Authorization': f'Bearer {app.config["PAYSTACK_SECRET_KEY"]}', 'Content-Type': 'application/json'}
+        data = {
+            'email': current_user.email,
+            'amount': amount,
+            'reference': f'upscale_{current_user.id}_{os.urandom(8).hex()}',  # Unique ref
+            'callback_url': url_for('payment_callback', _external=True)
+        }
+        response = requests.post('https://api.paystack.co/transaction/initialize', headers=headers, json=data)
+        if response.status_code == 200:
+            resp_data = response.json()
+            if resp_data['status']:
+                payment = Payment(reference=resp_data['data']['reference'], amount=amount, status='pending', user_id=current_user.id)
+                db.session.add(payment)
+                db.session.commit()
+                return redirect(resp_data['data']['authorization_url'])
+        flash('Payment initialization failed.')
     return render_template('enroll.html')
 
 @app.route('/payment_callback')
 @login_required
 def payment_callback():
-    """Handle payment callback from Paystack"""
-    reference = request.args.get('reference', '')
-    
-    # Validate reference format
-    if not reference or not reference.startswith('upskill_'):
-        log_security_event('payment_invalid_reference', user_id=current_user.id)
-        flash('Invalid payment reference.', 'error')
+    reference = request.args.get('reference')
+    if not reference:
+        flash('No reference provided.')
         return redirect(url_for('dashboard'))
-    
-    try:
-        # Verify transaction with Paystack
-        headers = {'Authorization': f'Bearer {app.config["PAYSTACK_SECRET_KEY"]}'}
-        response = http_requests.get(
-            f'https://api.paystack.co/transaction/verify/{reference}',
-            headers=headers,
-            timeout=30
-        )
-        
-        if response.status_code == 200:
-            resp_data = response.json()
-            if resp_data.get('status') and resp_data['data'].get('status') == 'success':
-                payment = Payment.query.filter_by(
-                    reference=reference,
-                    user_id=current_user.id
-                ).first()
-                
-                if payment:
-                    payment.status = 'success'
-                    payment.verified_at = datetime.utcnow()
-                    db.session.commit()
-                    
-                    log_security_event('payment_success', user_id=current_user.id, details=reference)
-                    flash('Payment successful! You now have full access to your courses.', 'success')
-                    return redirect(url_for('dashboard'))
-        
-        log_security_event('payment_verification_failed', user_id=current_user.id, details=reference)
-        flash('Payment verification failed. Please contact support if payment was deducted.', 'error')
-        
-    except Exception as e:
-        app.logger.error(f'Payment callback error: {e}')
-        flash('Error verifying payment. Please contact support.', 'error')
-    
+
+    # Verify transaction
+    headers = {'Authorization': f'Bearer {app.config["PAYSTACK_SECRET_KEY"]}'}
+    response = requests.get(f'https://api.paystack.co/transaction/verify/{reference}', headers=headers)
+    if response.status_code == 200:
+        resp_data = response.json()
+        if resp_data['status'] and resp_data['data']['status'] == 'success':
+            payment = Payment.query.filter_by(reference=reference).first()
+            if payment:
+                payment.status = 'success'
+                db.session.commit()
+                flash('Payment successful! Access your courses.')
+                return redirect(url_for('dashboard'))
+    flash('Payment verification failed.')
     return redirect(url_for('dashboard'))
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    """User dashboard"""
-    try:
-        courses = Course.query.filter_by(is_active=True).all()
-        progresses = {
-            p.module_id: p.completed 
-            for p in Progress.query.filter_by(user_id=current_user.id).all()
-        }
-        recommendations = {}
-        for course in courses:
-            rec = recommend_module(current_user.id, course.id)
-            if rec:
-                recommendations[course.id] = rec.title
-        
-        return render_template(
-            'dashboard.html',
-            courses=courses,
-            progresses=progresses,
-            recommendations=recommendations,
-            user=current_user
-        )
-    except Exception as e:
-        app.logger.error(f'Dashboard error: {e}')
-        flash('Error loading dashboard. Please try again.', 'error')
-        return redirect(url_for('home'))
+    courses = Course.query.all()
+    progresses = {p.module_id: p.completed for p in Progress.query.filter_by(user_id=current_user.id).all()}
+    recommendations = {}
+    for course in courses:
+        rec = recommend_module(current_user.id, course.id)
+        if rec:
+            recommendations[course.id] = rec.title
+    return render_template('dashboard.html', courses=courses, progresses=progresses, recommendations=recommendations, user=current_user)
 
 @app.route('/module/<int:module_id>', methods=['GET', 'POST'])
 @login_required
 def view_module(module_id):
-    """View and complete module"""
-    # Validate module_id
-    if module_id < 1 or module_id > 1000000:
-        abort(404)
-    
     module = Module.query.get_or_404(module_id)
-    
-    # Verify user has access (payment completed)
-    if not current_user.payment_plan:
-        flash('Please complete enrollment to access course content.', 'warning')
-        return redirect(url_for('enroll'))
-    
-    progress = Progress.query.filter_by(
-        user_id=current_user.id,
-        module_id=module_id
-    ).first()
-    
+    progress = Progress.query.filter_by(user_id=current_user.id, module_id=module_id).first()
     if request.method == 'POST':
-        try:
-            if not progress:
-                progress = Progress(
-                    user_id=current_user.id,
-                    module_id=module_id,
-                    completed=True,
-                    completed_at=datetime.utcnow()
-                )
-                db.session.add(progress)
-            else:
-                progress.completed = True
-                progress.completed_at = datetime.utcnow()
-            
-            db.session.commit()
-            flash('Module completed! Great work.', 'success')
-            return redirect(url_for('dashboard'))
-            
-        except Exception as e:
-            db.session.rollback()
-            app.logger.error(f'Progress update error: {e}')
-            flash('Error updating progress. Please try again.', 'error')
-    
-    return render_template(
-        'module.html',
-        module=module,
-        completed=progress.completed if progress else False
-    )
-
-# ============================================================================
-# ROUTES - QUESTIONNAIRE
-# ============================================================================
+        if not progress:
+            progress = Progress(user_id=current_user.id, module_id=module_id, completed=True)
+            db.session.add(progress)
+        else:
+            progress.completed = True
+        db.session.commit()
+        flash('Module completed!')
+        return redirect(url_for('dashboard'))
+    return render_template('module.html', module=module, completed=progress.completed if progress else False)
 
 @app.route('/questionnaire')
 def questionnaire():
-    """Display questionnaire"""
     return render_template('questionnaire.html', questions=QUESTIONNAIRE_QUESTIONS)
 
 @app.route('/questionnaire/submit', methods=['POST'])
 def questionnaire_submit():
-    """Process questionnaire submission"""
-    try:
-        responses = {}
-        for question in QUESTIONNAIRE_QUESTIONS:
-            q_id = question['id']
-            if question['type'] == 'multiple':
-                responses[q_id] = request.form.getlist(q_id)
-            else:
-                value = sanitize_input(request.form.get(q_id))
-                if value:
-                    responses[q_id] = value
-        
-        # Validate at least some responses
-        if len(responses) < 5:
-            flash('Please answer more questions for accurate recommendations.', 'warning')
-            return redirect(url_for('questionnaire'))
-        
-        # Calculate recommendation
-        recommended_course_name, match_percentage, all_scores = calculate_course_recommendation(responses)
-        
-        # Get course from database
-        recommended_course = Course.query.filter_by(title=recommended_course_name).first()
-        
-        # Generate secure session ID
-        session_id = generate_session_id()
-        
-        # Store response
-        questionnaire_response = QuestionnaireResponse(
-            session_id=session_id,
-            experience_level=responses.get('q1', ''),
-            interests=json.dumps(responses.get('q4', '')),
-            goals=json.dumps(responses.get('q12', '')),
-            current_skills=json.dumps(responses.get('q8', [])),
-            learning_style=responses.get('q9', ''),
-            time_commitment=responses.get('q10', ''),
-            recommended_course_id=recommended_course.id if recommended_course else None,
-            match_percentage=match_percentage,
-            ip_address=get_client_ip()
-        )
-        db.session.add(questionnaire_response)
-        db.session.commit()
-        
-        return redirect(url_for('questionnaire_results', session_id=session_id))
-        
-    except Exception as e:
-        db.session.rollback()
-        app.logger.error(f'Questionnaire error: {e}')
-        flash('An error occurred. Please try again.', 'error')
-        return redirect(url_for('questionnaire'))
+    # Get form responses - store all responses consistently
+    responses = {}
+    for question in QUESTIONNAIRE_QUESTIONS:
+        q_id = question['id']
+        if question['type'] == 'multiple':
+            # Get all selected values for checkbox questions (always a list)
+            responses[q_id] = request.form.getlist(q_id)
+        else:
+            # Get single value for radio questions (None if not answered)
+            value = request.form.get(q_id)
+            responses[q_id] = value  # Keep as None if not provided
+    
+    # Calculate recommendation
+    recommended_course_name, match_percentage, all_scores = calculate_course_recommendation(responses)
+    
+    # Get the course from database
+    recommended_course = Course.query.filter_by(title=recommended_course_name).first()
+    
+    # Generate unique session ID
+    import uuid
+    session_id = str(uuid.uuid4())
+    
+    # Store in database - use consistent None/null for missing values
+    # For JSON fields, store null (None) for missing single-choice, empty array for missing multi-choice
+    questionnaire_response = QuestionnaireResponse(
+        session_id=session_id,
+        experience_level=responses.get('q1'),  # None if not answered
+        interests=json.dumps(responses.get('q4')) if responses.get('q4') else None,
+        goals=json.dumps(responses.get('q12')) if responses.get('q12') else None,
+        current_skills=json.dumps(responses.get('q8', [])),  # Always a list for multi-choice
+        learning_style=responses.get('q9'),  # None if not answered
+        time_commitment=responses.get('q10'),  # None if not answered
+        recommended_course_id=recommended_course.id if recommended_course else None,
+        match_percentage=match_percentage,
+        ip_address=request.remote_addr
+    )
+    db.session.add(questionnaire_response)
+    db.session.commit()
+    
+    # Redirect to results page
+    return redirect(url_for('questionnaire_results', session_id=session_id))
 
 @app.route('/results/<session_id>')
 def questionnaire_results(session_id):
-    """Display questionnaire results"""
-    # Validate session_id format
-    if not session_id or len(session_id) > 100 or not re.match(r'^[A-Za-z0-9_-]+$', session_id):
-        abort(404)
-    
+    # Get questionnaire response
     response = QuestionnaireResponse.query.filter_by(session_id=session_id).first_or_404()
+    
+    # Get recommended course
     course = response.recommended_course
     
-    if not course:
-        flash('Unable to find recommended course. Please retake the questionnaire.', 'error')
-        return redirect(url_for('questionnaire'))
-    
+    # Get job data for this course
     job_data = JOB_DATABASE.get(course.title, {})
     
-    return render_template(
-        'questionnaire_results.html',
-        course=course,
-        match_percentage=response.match_percentage,
-        jobs=job_data.get('jobs', []),
-        companies=job_data.get('companies', [])
-    )
-
-# ============================================================================
-# HEALTH CHECK & UTILITY ROUTES
-# ============================================================================
-
-@app.route('/health')
-def health_check():
-    """Health check endpoint for monitoring"""
-    try:
-        # Test database connection
-        db.session.execute(db.text('SELECT 1'))
-        return {'status': 'healthy', 'timestamp': datetime.utcnow().isoformat()}, 200
-    except Exception as e:
-        app.logger.error(f'Health check failed: {e}')
-        return {'status': 'unhealthy', 'error': str(e)}, 500
-
-@app.route('/robots.txt')
-def robots():
-    """Robots.txt for search engines"""
-    content = """User-agent: *
-Allow: /
-Disallow: /dashboard
-Disallow: /enroll
-Disallow: /module/
-Disallow: /payment_callback
-"""
-    response = make_response(content)
-    response.headers['Content-Type'] = 'text/plain'
-    return response
-
-# ============================================================================
-# CATCH-ALL FOR UNDEFINED ROUTES
-# ============================================================================
-
-@app.route('/<path:undefined_path>')
-def catch_all(undefined_path):
-    """Catch undefined paths and return 404"""
-    # Log potential attack attempts
-    if any(pattern in undefined_path.lower() for pattern in [
-        '.php', '.asp', 'wp-', 'admin', '.env', 'config', 'passwd', 'etc/'
-    ]):
-        log_security_event('suspicious_path', details=undefined_path)
-    
-    abort(404)
-
-# ============================================================================
-# RUN APPLICATION
-# ============================================================================
+    return render_template('questionnaire_results.html',
+                         course=course,
+                         match_percentage=response.match_percentage,
+                         jobs=job_data.get('jobs', []),
+                         companies=job_data.get('companies', []))
 
 if __name__ == '__main__':
-    debug_mode = os.environ.get('FLASK_DEBUG', 'true').lower() == 'true'
-    port = int(os.environ.get('PORT', 5000))
-    app.run(debug=debug_mode, host='0.0.0.0', port=port)
+    app.run(debug=True)
