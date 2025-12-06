@@ -32,8 +32,18 @@ a {
 }
 
 .logo-mark {
-    font-size: 1.2rem;
-    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #0a84ff 0%, #4ea2ff 100%);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-size: 1rem;
+    box-shadow: 0 8px 18px rgba(10, 132, 255, 0.25);
 }
 
 .navbar-brand {
