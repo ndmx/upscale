@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% block title %}Find Your Perfect Path - Upscale AI Bootcamp{% endblock %}
+{% block meta_description %}Take our career assessment to discover which AI course is right for you. Get personalized recommendations based on your experience, interests, and goals.{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="mb-3">Find Your Perfect Learning Path</h1>
+                <p class="lead">Answer 16 questions to discover which course matches your goals and get personalized job recommendations.</p>
+                <div class="progress" style="height: 30px;">
+                    <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        <span id="progressText">Question 1 of 16</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questionnaire Form -->
+            <form id="questionnaireForm" method="POST" action="{{ url_for('questionnaire_submit') }}">
+                {% for question in questions %}
+                <div class="question-card card mb-4" id="question-{{ question.id }}" style="display: {% if loop.first %}block{% else %}none{% endif %};">
+                    <div class="card-body p-5">
+                        <div class="mb-4">
+                            <span class="badge bg-primary mb-2">
+                                {% if question.section == 'experience' %}📚 Experience
+                                {% elif question.section == 'interests' %}💡 Interests
+                                {% elif question.section == 'skills' %}🎯 Skills & Learning
+                                {% else %}🚀 Career Goals{% endif %}
+                            </span>
+                            <h3 class="card-title">{{ question.question }}</h3>
+                        </div>
+
+                        {% if question.type == 'single' %}
+                            <!-- Radio buttons for single choice -->
+                            <div class="options-list">
+                                {% for option in question.options %}
+                                <div class="form-check mb-3 p-3 border rounded option-item">
+                                    <input class="form-check-input" type="radio" name="{{ question.id }}" id="{{ question.id }}_{{ option.value }}" value="{{ option.value }}" required>
+                                    <label class="form-check-label w-100" for="{{ question.id }}_{{ option.value }}">
+                                        <strong>{{ option.label }}</strong>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% elif question.type == 'multiple' %}
+                            <!-- Checkboxes for multiple choice -->
+                            <div class="options-list">
+                                {% for option in question.options %}
+                                <div class="form-check mb-3 p-3 border rounded option-item">
+                                    <input class="form-check-input" type="checkbox" name="{{ question.id }}" id="{{ question.id }}_{{ option.value }}" value="{{ option.value }}">
+                                    <label class="form-check-label w-100" for="{{ question.id }}_{{ option.value }}">
+                                        <strong>{{ option.label }}</strong>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">Select all that apply</small>
+                        {% endif %}
+
+                        <!-- Navigation Buttons -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary prev-btn" {% if loop.first %}style="visibility: hidden;"{% endif %}>
+                                <i class="fas fa-arrow-left"></i> Previous
+                            </button>
+                            {% if loop.last %}
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check"></i> Get My Recommendations
+                            </button>
+                            {% else %}
+                            <button type="button" class="btn btn-primary next-btn">
+                                Next <i class="fas fa-arrow-right"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.option-item {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.option-item:hover {
+    background-color: #f8f9fa;
+    border-color: #007bff !important;
+}
+
+.option-item input:checked + label {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.question-card {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.form-check-input {
+    width: 1.5em;
+    height: 1.5em;
+    margin-top: 0.1em;
+}
+
+.form-check-label {
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('questionnaireForm');
+    const questionCards = document.querySelectorAll('.question-card');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const totalQuestions = questionCards.length;
+    let currentQuestion = 0;
+
+    // Update progress bar
+    function updateProgress() {
+        const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+        progressBar.style.width = progress + '%';
+        progressBar.setAttribute('aria-valuenow', progress);
+        progressText.textContent = `Question ${currentQuestion + 1} of ${totalQuestions}`;
+    }
+
+    // Show specific question
+    function showQuestion(index) {
+        questionCards.forEach((card, i) => {
+            card.style.display = i === index ? 'block' : 'none';
+        });
+        currentQuestion = index;
+        updateProgress();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Next button handlers
+    document.querySelectorAll('.next-btn').forEach((btn, index) => {
+        btn.addEventListener('click', function() {
+            const currentCard = questionCards[index];
+            const inputs = currentCard.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+            
+            // Check if at least one option is selected
+            let isValid = false;
+            if (currentCard.querySelector('input[type="radio"]')) {
+                isValid = Array.from(inputs).some(input => input.checked);
+            } else {
+                isValid = true; // Checkboxes are optional
+            }
+
+            if (isValid) {
+                showQuestion(index + 1);
+            } else {
+                alert('Please select an option before proceeding.');
+            }
+        });
+    });
+
+    // Previous button handlers
+    document.querySelectorAll('.prev-btn').forEach((btn, index) => {
+        btn.addEventListener('click', function() {
+            showQuestion(index - 1);
+        });
+    });
+
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        // Validate all required radio buttons are selected
+        let allValid = true;
+        questionCards.forEach(card => {
+            const radioInputs = card.querySelectorAll('input[type="radio"]');
+            if (radioInputs.length > 0) {
+                const isChecked = Array.from(radioInputs).some(input => input.checked);
+                if (!isChecked) {
+                    allValid = false;
+                }
+            }
+        });
+
+        if (!allValid) {
+            e.preventDefault();
+            alert('Please answer all required questions before submitting.');
+            return false;
+        }
+    });
+
+    // Initialize
+    updateProgress();
+});
+</script>
+{% endblock %}
+

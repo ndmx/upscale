@@ -189,3 +189,6 @@ For issues or questions, contact the Upscale team.
 
 Proprietary - Upscale AI Bootcamp
 
+---
+
+**Designed by edentv** - Creator Studio
