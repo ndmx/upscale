@@ -678,12 +678,93 @@ def courses():
         app.logger.error(f'Error loading courses: {e}')
         return render_template('courses.html', courses=[])
 
+# Course content data for detail pages
+COURSE_CONTENT = {
+    "Cybersecurity with AI": {
+        "highlights": [
+            "Detect and respond to AI-powered cyber attacks including deepfakes and automated phishing",
+            "Build intelligent defense systems using machine learning for threat detection",
+            "Master ethical hacking techniques adapted for West African fintech vulnerabilities",
+            "Implement AI-driven security monitoring for real-time threat prevention",
+            "Understand compliance frameworks (NDPA, GDPR) for data protection",
+            "Design secure architectures for mobile banking and payment systems"
+        ],
+        "prerequisites": [
+            "Basic computer literacy and internet navigation skills",
+            "Understanding of how networks and the internet work (helpful but not required)",
+            "Curiosity about security and protecting digital systems"
+        ],
+        "curriculum": [
+            ("Week 1-2", "Foundations of Cybersecurity & AI Threat Landscape"),
+            ("Week 3-4", "Network Security & Vulnerability Assessment"),
+            ("Week 5-6", "AI-Powered Attack Detection & Prevention"),
+            ("Week 7-8", "Ethical Hacking & Penetration Testing"),
+            ("Week 9-10", "Security Operations Center (SOC) & Incident Response"),
+            ("Week 11-12", "Capstone Project: Secure a Fintech Application")
+        ]
+    },
+    "Data Engineering for AI": {
+        "highlights": [
+            "Design and build scalable ETL pipelines for AI/ML workflows",
+            "Master Python, SQL, and cloud platforms (AWS/Azure) for data infrastructure",
+            "Implement data quality checks and governance with AI automation",
+            "Build real-time data processing systems for e-commerce and fintech",
+            "Create data lakes and warehouses optimized for machine learning",
+            "Handle West Africa's unique challenges: intermittent connectivity, diverse data sources"
+        ],
+        "prerequisites": [
+            "Basic understanding of spreadsheets (Excel/Google Sheets)",
+            "Familiarity with basic programming concepts (any language)",
+            "Interest in working with data and building systems"
+        ],
+        "curriculum": [
+            ("Week 1-2", "Python for Data Engineering & SQL Fundamentals"),
+            ("Week 3-4", "ETL Pipeline Design & Apache Airflow"),
+            ("Week 5-6", "Cloud Data Platforms (AWS/Azure)"),
+            ("Week 7-8", "Data Warehousing & Data Lakes"),
+            ("Week 9-10", "Real-time Processing & Stream Analytics"),
+            ("Week 11-12", "Capstone Project: Build an AI-Ready Data Pipeline")
+        ]
+    },
+    "Web App Development with AI": {
+        "highlights": [
+            "Build full-stack web applications with React, Node.js, and Python",
+            "Integrate AI APIs (OpenAI, Google AI) for intelligent features",
+            "Create chatbots, recommendation engines, and personalized experiences",
+            "Deploy production applications with CI/CD and security best practices",
+            "Design mobile-first, accessible interfaces for West African users",
+            "Implement offline capabilities for low-connectivity environments"
+        ],
+        "prerequisites": [
+            "Basic HTML and CSS knowledge (helpful but we cover fundamentals)",
+            "Understanding of how websites work",
+            "Enthusiasm for building user-facing applications"
+        ],
+        "curriculum": [
+            ("Week 1-2", "Modern JavaScript & React Fundamentals"),
+            ("Week 3-4", "Backend Development with Node.js/Python"),
+            ("Week 5-6", "Database Design & API Development"),
+            ("Week 7-8", "AI Integration: Chatbots & Recommendations"),
+            ("Week 9-10", "Deployment, Security & Performance"),
+            ("Week 11-12", "Capstone Project: AI-Powered Web Application")
+        ]
+    }
+}
+
 @app.route('/course/<int:course_id>')
 def course_detail(course_id):
     if course_id < 1 or course_id > 1000000:
         abort(404)
     course = Course.query.filter_by(id=course_id, is_active=True).first_or_404()
-    return render_template('course_detail.html', course=course)
+    
+    # Get course-specific content
+    content = COURSE_CONTENT.get(course.title, {})
+    
+    return render_template('course_detail.html', 
+                         course=course,
+                         highlights=content.get('highlights', []),
+                         prerequisites=content.get('prerequisites', []),
+                         curriculum=content.get('curriculum', []))
 
 # ============================================================================
 # ROUTES - AUTHENTICATION
