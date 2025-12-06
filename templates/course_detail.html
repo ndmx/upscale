@@ -7,7 +7,7 @@
         <!-- Breadcrumb -->
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('home') }}"><i class="bi bi-house"></i> Home</a></li>
                 <li class="breadcrumb-item"><a href="{{ url_for('courses') }}">Courses</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ course.title }}</li>
             </ol>
@@ -21,13 +21,13 @@
                 
                 <div class="mt-4 mb-4">
                     <span class="course-tag tag-beginner">
-                        <i class="fas fa-user-graduate"></i> Beginner Friendly
+                        <i class="bi bi-mortarboard"></i> Beginner Friendly
                     </span>
                     <span class="course-tag tag-duration">
-                        <i class="far fa-clock"></i> 3 Months
+                        <i class="bi bi-clock"></i> 3 Months
                     </span>
                     <span class="course-tag tag-intermediate">
-                        <i class="fas fa-book"></i> {{ course.modules|length }} Modules
+                        <i class="bi bi-journal-text"></i> {{ course.modules|length }} Modules
                     </span>
                 </div>
             </div>
@@ -41,8 +41,8 @@
                             <h3 class="text-primary">₦150,000</h3>
                             <p class="text-muted small">or ₦50,000/month × 3</p>
                         </div>
-                        <a href="{{ url_for('register') }}" class="cta-btn w-100 mb-2">
-                            <i class="fas fa-user-plus"></i> Enroll Now
+                        <a href="{{ url_for('register') }}" class="cta-btn apple-primary w-100 mb-2">
+                            <i class="bi bi-rocket-takeoff"></i> Enroll Now
                         </a>
                         <p class="small text-muted mt-2">
                             Already registered? <a href="{{ url_for('login') }}">Login here</a>
@@ -55,7 +55,7 @@
         <!-- What You'll Learn -->
         <div class="row mt-5">
             <div class="col-md-8">
-                <h2 class="mb-4">What You'll Learn</h2>
+                <h2 class="mb-4"><i class="bi bi-journal-richtext"></i> What You'll Learn</h2>
                 
                 {% if course.modules %}
                     <div class="accordion" id="modulesAccordion">
@@ -66,7 +66,7 @@
                                             data-bs-toggle="collapse" data-bs-target="#collapse{{ module.id }}" 
                                             aria-expanded="{% if loop.first %}true{% else %}false{% endif %}" 
                                             aria-controls="collapse{{ module.id }}">
-                                        <i class="fas fa-book-open me-2"></i> Module {{ loop.index }}: {{ module.title }}
+                                        <i class="bi bi-book me-2"></i> Module {{ loop.index }}: {{ module.title }}
                                     </button>
                                 </h2>
                                 <div id="collapse{{ module.id }}" 
@@ -76,7 +76,7 @@
                                     <div class="accordion-body">
                                         <p>{{ module.content[:200] }}...</p>
                                         <div class="alert alert-info">
-                                            <i class="fas fa-lock"></i> <strong>Preview Mode</strong> - 
+                                            <i class="bi bi-lock"></i> <strong>Preview Mode</strong> - 
                                             Enroll to access full interactive content, exercises, and projects.
                                         </div>
                                     </div>
@@ -86,7 +86,7 @@
                     </div>
                 {% else %}
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> Modules for this course are being updated. Check back soon!
+                        <i class="bi bi-info-circle"></i> Modules for this course are being updated. Check back soon!
                     </div>
                 {% endif %}
                 
@@ -97,7 +97,7 @@
                         <div class="col-md-6 mb-3">
                             <div class="card benefit-card">
                                 <div class="card-body">
-                                    <i class="fas fa-check-circle text-success fa-2x mb-3"></i>
+                                    <i class="bi bi-check-circle text-success fa-2x mb-3"></i>
                                     <h5>Hands-On Projects</h5>
                                     <p>Build real-world projects relevant to West African contexts.</p>
                                 </div>
@@ -106,7 +106,7 @@
                         <div class="col-md-6 mb-3">
                             <div class="card benefit-card">
                                 <div class="card-body">
-                                    <i class="fas fa-certificate text-success fa-2x mb-3"></i>
+                                    <i class="bi bi-award text-success fa-2x mb-3"></i>
                                     <h5>Certificate</h5>
                                     <p>Earn a recognized certificate upon completion.</p>
                                 </div>
@@ -115,7 +115,7 @@
                         <div class="col-md-6 mb-3">
                             <div class="card benefit-card">
                                 <div class="card-body">
-                                    <i class="fas fa-users text-success fa-2x mb-3"></i>
+                                    <i class="bi bi-people text-success fa-2x mb-3"></i>
                                     <h5>Community Access</h5>
                                     <p>Join a network of learners across West Africa.</p>
                                 </div>
@@ -124,7 +124,7 @@
                         <div class="col-md-6 mb-3">
                             <div class="card benefit-card">
                                 <div class="card-body">
-                                    <i class="fas fa-mobile-alt text-success fa-2x mb-3"></i>
+                                    <i class="bi bi-phone text-success fa-2x mb-3"></i>
                                     <h5>Mobile Optimized</h5>
                                     <p>Learn on any device with offline capabilities.</p>
                                 </div>
@@ -141,10 +141,10 @@
                     <div class="card-body">
                         <h5 class="card-title mb-3">Course Stats</h5>
                         <ul class="list-unstyled">
-                            <li class="mb-2"><i class="fas fa-users text-primary"></i> 2,500+ Enrolled</li>
-                            <li class="mb-2"><i class="fas fa-star text-warning"></i> 4.8/5 Rating</li>
-                            <li class="mb-2"><i class="fas fa-language text-primary"></i> English</li>
-                            <li class="mb-2"><i class="fas fa-infinity text-primary"></i> Lifetime Access</li>
+                            <li class="mb-2"><i class="bi bi-people text-primary"></i> 2,500+ Enrolled</li>
+                            <li class="mb-2"><i class="bi bi-star text-warning"></i> 4.8/5 Rating</li>
+                            <li class="mb-2"><i class="bi bi-translate text-primary"></i> English</li>
+                            <li class="mb-2"><i class="bi bi-infinity text-primary"></i> Lifetime Access</li>
                         </ul>
                     </div>
                 </div>
@@ -168,8 +168,8 @@
         <div class="card mt-5 p-5 text-center" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white;">
             <h3 class="mb-3">Ready to Start Learning?</h3>
             <p class="lead mb-4">Enroll now to access full course content, interactive modules, progress tracking, and AI-powered recommendations.</p>
-            <a href="{{ url_for('register') }}" class="cta-btn btn-lg">
-                <i class="fas fa-rocket"></i> Enroll Now to Access Full Content
+            <a href="{{ url_for('register') }}" class="cta-btn apple-primary btn-lg">
+                <i class="bi bi-rocket-takeoff"></i> Enroll Now to Access Full Content
             </a>
             <p class="mt-3 mb-0">
                 <small>Already have an account? <a href="{{ url_for('login') }}" style="color: #28a745;">Login here</a></small>

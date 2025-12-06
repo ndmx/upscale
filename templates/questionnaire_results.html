@@ -7,7 +7,7 @@
     <!-- Results Hero -->
     <div class="card mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
         <div class="card-body p-5 text-center">
-            <i class="fas fa-trophy fa-3x mb-3"></i>
+            <i class="bi bi-trophy-fill fa-3x mb-3"></i>
             <h1 class="mb-3">Your Perfect Learning Path!</h1>
             <h2 class="mb-4">{{ course.title }}</h2>
             <div class="mb-4">
@@ -23,14 +23,14 @@
     <!-- Course Modules Preview -->
     <div class="card mb-5">
         <div class="card-body p-4">
-            <h3 class="mb-4"><i class="fas fa-book-open"></i> What You'll Learn</h3>
+            <h3 class="mb-4"><i class="bi bi-journal-richtext"></i> What You'll Learn</h3>
             <div class="row">
                 {% for module in course.modules %}
                 <div class="col-md-4 mb-3">
                     <div class="card h-100 border-primary">
                         <div class="card-body">
                             <h5 class="card-title text-primary">
-                                <i class="fas fa-check-circle"></i> {{ module.title }}
+                                <i class="bi bi-check-circle"></i> {{ module.title }}
                             </h5>
                             <p class="card-text">{{ module.content[:150] }}...</p>
                         </div>
@@ -43,7 +43,7 @@
 
     <!-- Job Opportunities -->
     <div class="mb-5">
-        <h2 class="text-center mb-4"><i class="fas fa-briefcase"></i> Career Opportunities</h2>
+        <h2 class="text-center mb-4"><i class="bi bi-briefcase"></i> Career Opportunities</h2>
         <p class="text-center text-muted mb-4">Here are the job roles you can pursue after completing this course:</p>
         
         <div class="row">
@@ -72,7 +72,7 @@
     <!-- Hiring Companies -->
     <div class="card mb-5 bg-light">
         <div class="card-body p-5">
-            <h3 class="text-center mb-4"><i class="fas fa-building"></i> Companies Hiring for These Roles</h3>
+            <h3 class="text-center mb-4"><i class="bi bi-building"></i> Companies Hiring for These Roles</h3>
             <p class="text-center text-muted mb-4">West African companies actively seeking professionals with these skills:</p>
             <div class="row justify-content-center">
                 {% for company in companies %}
@@ -89,7 +89,7 @@
     <!-- Skills You'll Gain -->
     <div class="card mb-5">
         <div class="card-body p-4">
-            <h3 class="mb-4"><i class="fas fa-star"></i> Skills You'll Master</h3>
+            <h3 class="mb-4"><i class="bi bi-star"></i> Skills You'll Master</h3>
             <div class="row">
                 <div class="col-md-6">
                     <h5>Technical Skills</h5>
@@ -97,7 +97,7 @@
                         {% for job in jobs[:1] %}
                             {% for skill in job.skills[:3] %}
                             <li class="list-group-item">
-                                <i class="fas fa-check text-success"></i> {{ skill }}
+                                <i class="bi bi-check2-circle text-success"></i> {{ skill }}
                             </li>
                             {% endfor %}
                         {% endfor %}
@@ -107,13 +107,13 @@
                     <h5>Professional Skills</h5>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <i class="fas fa-check text-success"></i> Problem-solving with AI
+                            <i class="bi bi-check2-circle text-success"></i> Problem-solving with AI
                         </li>
                         <li class="list-group-item">
-                            <i class="fas fa-check text-success"></i> Project management
+                            <i class="bi bi-check2-circle text-success"></i> Project management
                         </li>
                         <li class="list-group-item">
-                            <i class="fas fa-check text-success"></i> Team collaboration
+                            <i class="bi bi-check2-circle text-success"></i> Team collaboration
                         </li>
                     </ul>
                 </div>
@@ -128,10 +128,10 @@
             <p class="lead mb-4">Join 330+ learners already building their AI-adapted skills</p>
             <div class="d-flex justify-content-center gap-3 flex-wrap">
                 <a href="{{ url_for('course_detail', course_id=course.id) }}" class="btn btn-light btn-lg">
-                    <i class="fas fa-info-circle"></i> Learn More About This Course
+                    <i class="bi bi-info-circle"></i> Learn More About This Course
                 </a>
-                <a href="{{ url_for('register') }}" class="btn btn-success btn-lg">
-                    <i class="fas fa-rocket"></i> Enroll Now
+                <a href="{{ url_for('register') }}" class="btn apple-primary btn-lg">
+                    <i class="bi bi-rocket-takeoff"></i> Enroll Now
                 </a>
             </div>
             <p class="mt-4 mb-0">
@@ -151,7 +151,7 @@
                 <i class="fab fa-linkedin"></i> LinkedIn
             </button>
             <button class="btn btn-outline-secondary" onclick="copyLink()">
-                <i class="fas fa-link"></i> Copy Link
+                <i class="bi bi-link-45deg"></i> Copy Link
             </button>
         </div>
     </div>

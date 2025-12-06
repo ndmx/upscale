@@ -61,16 +61,16 @@
 
                         <!-- Navigation Buttons -->
                         <div class="d-flex justify-content-between mt-4">
-                            <button type="button" class="btn btn-outline-secondary prev-btn" {% if loop.first %}style="visibility: hidden;"{% endif %}>
-                                <i class="fas fa-arrow-left"></i> Previous
+                            <button type="button" class="btn btn-outline-primary prev-btn" {% if loop.first %}style="visibility: hidden;"{% endif %}>
+                                <i class="bi bi-chevron-left"></i> Previous
                             </button>
                             {% if loop.last %}
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="fas fa-check"></i> Get My Recommendations
+                            <button type="submit" class="btn apple-primary btn-lg">
+                                <i class="bi bi-stars"></i> Get My Recommendations
                             </button>
                             {% else %}
-                            <button type="button" class="btn btn-primary next-btn">
-                                Next <i class="fas fa-arrow-right"></i>
+                            <button type="button" class="btn apple-primary next-btn">
+                                Next <i class="bi bi-chevron-right"></i>
                             </button>
                             {% endif %}
                         </div>
