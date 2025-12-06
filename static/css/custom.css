@@ -98,7 +98,7 @@ a {
 
 /* Hero */
 .hero {
-    background: radial-gradient(circle at top left, rgba(10, 132, 255, 0.15), transparent 45%), #f7f8fa;
+    background: linear-gradient(180deg, #f7f8fa 0%, #f2f3f5 100%);
     color: var(--text);
     padding: 80px 0 60px;
     text-align: center;
@@ -144,8 +144,8 @@ a {
     background: #ffffff;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 40px 0;
-    margin: 40px auto;
+    padding: 48px 0;
+    margin: 48px auto;
     box-shadow: 0 12px 30px rgba(0,0,0,0.05);
 }
 
@@ -289,13 +289,11 @@ footer a:hover {
     border-radius: 10px;
 }
 
-/* CTA Cards */
-.sticky-cta {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-    z-index: 1200;
-    box-shadow: var(--shadow);
+.cta-panel {
+    background: #f7f8fa;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.06);
 }
 
 /* Responsive */
