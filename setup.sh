@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "==================================="
-echo "Upscale AI Bootcamp Setup Script"
+echo "Upskill Institute Setup Script"
 echo "==================================="
 echo ""
 
@@ -31,16 +31,11 @@ echo "Setup Complete!"
 echo "==================================="
 echo ""
 echo "Next steps:"
-echo "1. Open app.py and update the following:"
-echo "   - SECRET_KEY (line 13): Replace 'your_secret_key_change_this' with a secure random string"
-echo "   - PAYSTACK_SECRET_KEY (line 16): Add your Paystack secret key from https://dashboard.paystack.com/#/settings/developer"
 echo ""
-echo "2. Run the application:"
+echo "For local development:"
 echo "   python3 app.py"
 echo ""
-echo "3. Open your browser and go to:"
-echo "   http://127.0.0.1:5000/"
+echo "Then open: http://127.0.0.1:5000/"
 echo ""
-echo "For test mode, use Paystack test keys (starts with sk_test_)"
+echo "For production deployment, see DEPLOYMENT.md"
 echo "==================================="
-

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Your Perfect Path: {{ course.title }} - Upscale AI Bootcamp{% endblock %}
+{% block title %}Your Perfect Path: {{ course.title }} - Upskill Institute{% endblock %}
 {% block meta_description %}Based on your assessment, {{ course.title }} is your recommended learning path with {{ match_percentage }}% match.{% endblock %}
 
 {% block content %}
@@ -159,7 +159,7 @@
 
 <script>
 function shareOnTwitter() {
-    const text = `I just discovered my perfect learning path: {{ course.title }} with {{ match_percentage }}% match! 🚀 Find yours at Upscale AI Bootcamp`;
+    const text = `I just discovered my perfect learning path: {{ course.title }} with {{ match_percentage }}% match! 🚀 Find yours at Upskill Institute`;
     const url = window.location.href;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
 }

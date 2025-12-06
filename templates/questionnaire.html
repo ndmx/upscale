@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Find Your Perfect Path - Upscale AI Bootcamp{% endblock %}
+{% block title %}Find Your Perfect Path - Upskill Institute{% endblock %}
 {% block meta_description %}Take our career assessment to discover which AI course is right for you. Get personalized recommendations based on your experience, interests, and goals.{% endblock %}
 
 {% block content %}
@@ -19,6 +19,7 @@
 
             <!-- Questionnaire Form -->
             <form id="questionnaireForm" method="POST" action="{{ url_for('questionnaire_submit') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 {% for question in questions %}
                 <div class="question-card card mb-4" id="question-{{ question.id }}" style="display: {% if loop.first %}block{% else %}none{% endif %};">
                     <div class="card-body p-5">
