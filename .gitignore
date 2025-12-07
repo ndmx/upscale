@@ -1,3 +1,13 @@
+# Local planning/cache
+.cursor/plans
+
+# Deployment guides (kept local only)
+DEPLOYMENT.md
+deployment.md
+
+# Sample env file (keep local)
+env.example
+
 # Environment
 .env
 .env.local
