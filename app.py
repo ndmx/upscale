@@ -715,7 +715,7 @@ COURSE_CONTENT = {
             "Implement data quality checks and governance with AI automation",
             "Build real-time data processing systems for e-commerce and fintech",
             "Create data lakes and warehouses optimized for machine learning",
-            "Handle West Africa's unique challenges: intermittent connectivity, diverse data sources"
+            "Handle local challenges: intermittent connectivity and diverse data sources"
         ],
         "prerequisites": [
             "Basic understanding of spreadsheets (Excel/Google Sheets)",
