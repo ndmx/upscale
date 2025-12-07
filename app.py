@@ -425,7 +425,7 @@ with app.app_context():
     if Course.query.count() == 0:
         courses_data = [
             {"title": "Cybersecurity with AI", "description": "Forge unbreakable defenses blending timeless cybersecurity with AI wizardry - ready to shield global fintech giants from Lagos to London.", "modules": [
-                {"title": "Intro to AI Threats", "content": "Explore how AI is weaponized in cyber attacks, including deepfakes and automated phishing tailored to West African mobile banking vulnerabilities."},
+                {"title": "Intro to AI Threats", "content": "Explore how AI is weaponized in cyber attacks, including deepfakes and automated phishing tailored to local mobile banking vulnerabilities."},
                 {"title": "Defensive AI Tools", "content": "Hands-on training with machine learning models for anomaly detection and threat prediction."},
                 {"title": "Ethical AI in Security", "content": "Delve into AI biases in cybersecurity tools and ethical considerations for deployment."}
             ]},
@@ -689,7 +689,7 @@ COURSE_CONTENT = {
         "highlights": [
             "Detect and respond to AI-powered cyber attacks including deepfakes and automated phishing",
             "Build intelligent defense systems using machine learning for threat detection",
-            "Master ethical hacking techniques adapted for West African fintech vulnerabilities",
+            "Master ethical hacking techniques adapted for local fintech vulnerabilities",
             "Implement AI-driven security monitoring for real-time threat prevention",
             "Understand compliance frameworks (NDPA, GDPR) for data protection",
             "Design secure architectures for mobile banking and payment systems"
@@ -737,7 +737,7 @@ COURSE_CONTENT = {
             "Integrate AI APIs (OpenAI, Google AI) for intelligent features",
             "Create chatbots, recommendation engines, and personalized experiences",
             "Deploy production applications with CI/CD and security best practices",
-            "Design mobile-first, accessible interfaces for West African users",
+            "Design mobile-first, accessible interfaces for local users",
             "Implement offline capabilities for low-connectivity environments"
         ],
         "prerequisites": [

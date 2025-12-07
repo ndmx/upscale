@@ -1,6 +1,6 @@
 # Upskill Institute Web Application
 
-Flask-powered platform for Upskill Institute, serving AI-infused courses for West African professionals.
+Flask-powered platform for Upskill Institute, serving AI-infused courses for local professionals.
 
 ## What’s Inside
 - Secure auth (login, registration) with CSRF protection and rate limiting
