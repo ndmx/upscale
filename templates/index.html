@@ -1,19 +1,20 @@
 {% extends 'base.html' %}
 {% block title %}Home - Upskill Institute{% endblock %}
-{% block meta_description %}Transform your career with AI-adapted skills. Join 330+ West African professionals learning Cybersecurity, Data Engineering, and Web Development.{% endblock %}
+{% block meta_description %}Propel West African innovators to the global tech forefront with AI-infused programs that shatter geographical barriers.{% endblock %}
 
 {% block content %}
     <!-- Hero Section -->
     <div class="hero">
         <div class="container">
-            <h1>Upskill Your Career</h1>
-            <p>Join our community of 330+ learners transforming careers with AI-adapted cybersecurity, data engineering, and web development.</p>
+            <h1>Propel West African Innovators</h1>
+            <p class="lead">Propel West African innovators to the global tech forefront in just 3 months.</p>
+            <p class="text-muted">At Upskill Institute, we equip beginners with AI-infused, world-class skills that shatter geographical barriers, transforming regional talent into global architects of tomorrow's digital world.</p>
             <div class="mt-4">
                 <a href="{{ url_for('courses') }}" class="cta-btn apple-primary me-3">
                     <i class="bi bi-journal-bookmark"></i> Browse Courses
                 </a>
                 <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
-                    <i class="bi bi-person-plus"></i> Get Started Free
+                    <i class="bi bi-rocket-takeoff"></i> Start My Global Ascent
                 </a>
             </div>
         </div>
@@ -40,6 +41,11 @@
                     <span class="stat-label">Countries</span>
                 </div>
             </div>
+            <div class="row justify-content-center mt-3">
+                <div class="col-lg-10 text-center">
+                    <p class="lead mb-0 fw-semibold">At Upskill Institute, we propel West African innovators to the global tech revolution with AI-infused programs that shatter geographical barriers.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -50,13 +56,13 @@
                 <div class="col-md-8 text-md-start text-center mb-3 mb-md-0">
                     <h2 class="mb-3">
                         <i class="bi bi-compass"></i><br>
-                        Not Sure Which Course to Choose?
+                        Lost in the Global Tech Maze?
                     </h2>
-                    <p class="lead mb-0 text-muted">Take our 10-minute career assessment and discover your perfect learning path with personalized job recommendations!</p>
+                    <p class="lead mb-0 text-muted">Unlock your path to worldwide mastery with our 10-minute AI-powered quiz and get personalized job recommendations.</p>
                 </div>
                 <div class="col-md-4 text-center">
                     <a href="{{ url_for('questionnaire') }}" class="btn btn-light btn-lg px-5 py-3">
-                        <i class="bi bi-stars"></i> Find Your Perfect Path
+                        <i class="bi bi-stars"></i> Unlock My Path
                     </a>
                     <p class="mt-2 mb-0 text-muted"><small>✨ Get instant personalized recommendations</small></p>
                 </div>
@@ -67,27 +73,34 @@
     <!-- Benefits Section -->
     <div class="benefits-section">
         <div class="container">
-            <h2 class="text-center mb-5">Why Choose Upskill Institute?</h2>
+            <h2 class="text-center mb-5">Your Launchpad to Global Tech Mastery</h2>
             <div class="row">
-                <div class="col-md-4 mb-4">
+                <div class="col-md-3 mb-4">
                     <div class="card benefit-card">
                         <div class="benefit-icon"><i class="fas fa-graduation-cap"></i></div>
                         <h3>Career Transformation</h3>
-                        <p>From beginner to AI professional in just 3 months. Learn in-demand skills adapted for the AI era.</p>
+                        <p>Shatter barriers with AI-first skills rivaling Berlin’s best—beginner to global-ready in 3 months.</p>
                     </div>
                 </div>
-                <div class="col-md-4 mb-4">
+                <div class="col-md-3 mb-4">
                     <div class="card benefit-card">
                         <div class="benefit-icon"><i class="fas fa-globe-africa"></i></div>
                         <h3>West Africa Focused</h3>
-                        <p>Content designed for regional challenges like mobile banking security, power outages, and low bandwidth.</p>
+                        <p>Built for our realities—power cuts, low bandwidth—yet benchmarked to global standards.</p>
                     </div>
                 </div>
-                <div class="col-md-4 mb-4">
+                <div class="col-md-3 mb-4">
+                    <div class="card benefit-card">
+                        <div class="benefit-icon"><i class="fas fa-sync-alt"></i></div>
+                        <h3>Global Synchronization</h3>
+                        <p>Curricula aligned to IEEE-grade rigor so you compete seamlessly for international roles.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
                     <div class="card benefit-card">
                         <div class="benefit-icon"><i class="fas fa-users"></i></div>
                         <h3>Community Support</h3>
-                        <p>Join a thriving community of learners across Nigeria, Ghana, Senegal, and beyond.</p>
+                        <p>Thrive with peers and mentors from Lagos to London - your global network starts here.</p>
                     </div>
                 </div>
             </div>
@@ -97,13 +110,19 @@
     <!-- Available Courses -->
     <div class="container mt-5">
         <h2 class="text-center mb-5">Explore Our Courses</h2>
+        {% set course_overrides = {
+            "Cybersecurity with AI": "Forge unbreakable defenses blending timeless cybersecurity with AI wizardry - ready to shield global fintech giants from Lagos to London.",
+            "Data Engineering for AI": "Craft lightning-fast data pipelines for AI dominance - conquering spotty connections and unlocking insights that power startups from Accra to Austin.",
+            "Web App Development with AI": "Revolutionize web creation with AI-infused builds that captivate users worldwide, resilient from Dakar downtime to Dubai demands."
+        } %}
         <div class="row">
             {% for course in courses %}
                 <div class="col-md-4 mb-4 course-card">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">{{ course.title }}</h5>
-                            <p class="card-text">{{ course.description[:120] }}...</p>
+                            {% set description = course_overrides.get(course.title, course.description) %}
+                            <p class="card-text">{{ description[:120] }}...</p>
                             <div class="mb-3">
                                 <span class="course-tag tag-beginner">Beginner Friendly</span>
                                 <span class="course-tag tag-duration">3 Months</span>
@@ -124,7 +143,8 @@
     <!-- Partners Section -->
     <div class="partners-section mt-5">
         <div class="container">
-            <h2 class="text-center mb-4">Trusted by Leading Organizations</h2>
+            <h2 class="text-center mb-2">Backed by Global Titans</h2>
+            <p class="text-center text-muted mb-4">Partners like Google Africa, IEEE affiliates, and Silicon Savannah hubs - elevating you to their league.</p>
             <div class="row align-items-center justify-content-center">
                 <div class="col-md-2 col-4 text-center mb-3">
                     <p class="partner-logo fw-bold" style="font-size: 1.2rem; color: #666;">NITDA</p>
@@ -145,16 +165,16 @@
     <!-- Final CTA -->
     <div class="container my-5 text-center">
         <div class="card p-5 cta-panel">
-            <h2 class="mb-3">Ready to Transform Your Career?</h2>
-            <p class="lead mb-4 text-muted">Join hundreds of West African professionals building AI-adapted skills.</p>
-            <a href="{{ url_for('register') }}" class="cta-btn apple-primary btn-lg">Start Learning Today</a>
+            <h2 class="mb-3">Ignite Your Global Ascent Now</h2>
+            <p class="lead mb-4 text-muted">Join 330+ trailblazers conquering tech frontiers - spots filling fast.</p>
+            <a href="{{ url_for('register') }}" class="cta-btn apple-primary btn-lg">Start My Global Ascent</a>
         </div>
     </div>
 
     <!-- Testimonials Section (moved below final CTA) -->
     <div class="testimonials-section my-5">
         <div class="container">
-            <h2 class="text-center mb-5">Success Stories from Our Community</h2>
+            <h2 class="text-center mb-5">From West Africa to the World Stage</h2>
             <div class="row">
                 <div class="col-md-4 mb-4">
                     <div class="testimonial">
@@ -165,7 +185,7 @@
                                 <div class="testimonial-location">Lagos, Nigeria</div>
                             </div>
                         </div>
-                        <p class="testimonial-quote text-muted">"Upskill transformed my career! I landed a cybersecurity role at a fintech startup after completing the AI Security course."</p>
+                        <p class="testimonial-quote text-muted">"Upskill catapulted me onto the world stage—Berlin-bound cybersecurity guardian at a fintech unicorn. Pure game-changer."</p>
                     </div>
                 </div>
                 <div class="col-md-4 mb-4">
@@ -177,7 +197,7 @@
                                 <div class="testimonial-location">Accra, Ghana</div>
                             </div>
                         </div>
-                        <p class="testimonial-quote text-muted">"The Data Engineering course gave me practical skills I use daily. The regional focus on connectivity challenges was spot-on!"</p>
+                        <p class="testimonial-quote text-muted">"Built lightning-fast data pipelines that now power startups from Accra to Austin. The global rigor made recruiters notice."</p>
                     </div>
                 </div>
                 <div class="col-md-4 mb-4">
@@ -189,7 +209,7 @@
                                 <div class="testimonial-location">Dakar, Senegal</div>
                             </div>
                         </div>
-                        <p class="testimonial-quote text-muted">"Building AI-powered web apps is now my reality. The mobile-first approach was perfect for our market!"</p>
+                        <p class="testimonial-quote text-muted">"Reimagined web apps with AI that captivate users worldwide—resilient from Dakar downtime to Dubai demands."</p>
                     </div>
                 </div>
             </div>

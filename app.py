@@ -424,17 +424,17 @@ with app.app_context():
     db.create_all()
     if Course.query.count() == 0:
         courses_data = [
-            {"title": "Cybersecurity with AI", "description": "Master the fusion of traditional cybersecurity practices with cutting-edge AI to combat evolving digital threats in West Africa. This course equips you with skills to detect AI-powered attacks, build intelligent defense systems, and ensure secure digital ecosystems amid rising cybercrimes in regions like Nigeria and Ghana.", "modules": [
+            {"title": "Cybersecurity with AI", "description": "Forge unbreakable defenses blending timeless cybersecurity with AI wizardry - ready to shield global fintech giants from Lagos to London.", "modules": [
                 {"title": "Intro to AI Threats", "content": "Explore how AI is weaponized in cyber attacks, including deepfakes and automated phishing tailored to West African mobile banking vulnerabilities."},
                 {"title": "Defensive AI Tools", "content": "Hands-on training with machine learning models for anomaly detection and threat prediction."},
                 {"title": "Ethical AI in Security", "content": "Delve into AI biases in cybersecurity tools and ethical considerations for deployment."}
             ]},
-            {"title": "Data Engineering for AI", "description": "Learn to engineer robust data pipelines optimized for AI applications, addressing West Africa's unique challenges like intermittent connectivity and diverse data sources.", "modules": [
+            {"title": "Data Engineering for AI", "description": "Craft lightning-fast data pipelines for AI dominance - conquering spotty connections and unlocking insights that power startups from Accra to Austin.", "modules": [
                 {"title": "ETL Basics for AI", "content": "Design extract, transform, load processes with AI automation."},
                 {"title": "Cloud Integration and Scalability", "content": "Integrate cloud platforms like AWS or Azure with AI data needs."},
                 {"title": "Data Governance with AI", "content": "Implement AI-assisted data quality checks and compliance."}
             ]},
-            {"title": "Web App Development with AI", "description": "Adapt web development fundamentals to incorporate AI for smarter, interactive applications suited to West African users.", "modules": [
+            {"title": "Web App Development with AI", "description": "Revolutionize web creation with AI-infused builds that captivate users worldwide, resilient from Dakar downtime to Dubai demands.", "modules": [
                 {"title": "React with AI APIs", "content": "Build full-stack web apps using React and integrate AI APIs."},
                 {"title": "Deployment and Security", "content": "Deploy AI-integrated apps with emphasis on security."},
                 {"title": "AI-Enhanced User Experiences", "content": "Create personalized web features using AI."}
@@ -677,6 +677,11 @@ def courses():
     except Exception as e:
         app.logger.error(f'Error loading courses: {e}')
         return render_template('courses.html', courses=[])
+
+@app.route('/about')
+def about():
+    """Showcase mission, pillars, and credibility signals."""
+    return render_template('about.html')
 
 # Course content data for detail pages
 COURSE_CONTENT = {
